@@ -25,7 +25,7 @@ export default function Lobby() {
   const { data: gameData, isLoading } = useQuery({
     queryKey: ["/api/games", code],
     refetchInterval: 2000, // Poll every 2 seconds
-  });
+  }) as { data: any, isLoading: boolean };
 
   const joinMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -205,6 +205,11 @@ export default function Lobby() {
 
   const isHost = playerId === gameData?.gameRoom?.hostId;
   const currentPlayer = gameData?.players?.find((p: any) => p.playerId === playerId);
+  
+  console.log("Debug - isHost:", isHost);
+  console.log("Debug - hasJoined:", hasJoined);
+  console.log("Debug - playerId:", playerId);
+  console.log("Debug - gameData:", gameData);
 
   return (
     <div className="min-h-screen bg-background">
