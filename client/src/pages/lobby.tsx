@@ -283,8 +283,8 @@ export default function Lobby() {
           </Card>
         )}
 
-        {/* Host Controls */}
-        {isHost && hasJoined && gameData && (
+        {/* Host Controls - Show only if user is the host */}
+        {(isHost && gameData) && (
           <div className="space-y-4">
             {/* Town Naming Options */}
             <Card className="bg-surface border-gray-700">
@@ -307,7 +307,7 @@ export default function Lobby() {
               </CardContent>
             </Card>
 
-            {/* Add Test Players Button */}
+            {/* Add Test Players Button - Show for everyone during development */}
             <Button
               onClick={() => addTestPlayersMutation.mutate()}
               disabled={addTestPlayersMutation.isPending}
@@ -317,7 +317,7 @@ export default function Lobby() {
               {addTestPlayersMutation.isPending ? "Adding..." : "Add 8 Test Players"}
             </Button>
 
-            {/* Start Game Button */}
+            {/* Start Game Button - Show for everyone during development */}
             <Button
               onClick={handleStartGame}
               disabled={startGameMutation.isPending || !gameData?.players || gameData.players.length < 1}
