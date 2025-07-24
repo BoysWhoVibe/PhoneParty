@@ -55,7 +55,7 @@ export default function Lobby() {
   const startGameMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", `/api/games/${code}/start`, {
-        hostId: playerId,
+        hostId: gameData?.gameRoom?.hostId || playerId,
         townNamingMode
       });
       return response.json();
