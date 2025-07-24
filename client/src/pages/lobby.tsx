@@ -127,10 +127,10 @@ export default function Lobby() {
   };
 
   const handleStartGame = () => {
-    if (!gameData?.players || gameData.players.length < 3) {
+    if (!gameData?.players || gameData.players.length < 1) {
       toast({
         title: "Not enough players",
-        description: "Need at least 3 players to start",
+        description: "Need at least 1 player to start",
         variant: "destructive"
       });
       return;
@@ -284,7 +284,7 @@ export default function Lobby() {
             {/* Start Game Button */}
             <Button
               onClick={handleStartGame}
-              disabled={startGameMutation.isPending || gameData.players.length < 3}
+              disabled={startGameMutation.isPending || gameData.players.length < 1}
               className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
             >
               <Play className="w-5 h-5 mr-2" />

@@ -169,8 +169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const players = await storage.getPlayersByGame(gameRoom.id);
-      if (players.length < 3) {
-        return res.status(400).json({ message: "Need at least 3 players" });
+      if (players.length < 1) {
+        return res.status(400).json({ message: "Need at least 1 player" });
       }
 
       const phase = townNamingMode === "host" ? "role_assignment" : "town_naming";
