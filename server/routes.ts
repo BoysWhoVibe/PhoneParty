@@ -391,6 +391,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add fake players for testing
+  app.post("/api/games/:code/add-test-players", async (req, res) => {
+    try {
+      const { code } = req.params;
+      
+      const gameRoom = await storage.getGameRoomByCode(code);
+      if (!gameRoom) {
+        return res.status(404).json({ message: "Game room not found" });
+      }
+
+      const testPlayers = [
+        "Alice Johnson", "Bob Smith", "Carol Davis", "Dave Wilson",
+        "Emma Taylor", "Frank Brown", "Grace Lee", "Harry Chen"
+      ];
+
+      for (const name of testPlayers) {
+        const playerId = nanoid();
+        await storage.addPlayer({
+          gameId: gameRoom.id,
+          playerId,
+          name,
+          role: null,
+          isAlive: true,
+          isHost: false,
+          connectionStatus: "connected"
+        });
+      }
+
+      res.json({ success: true, message: `Added ${testPlayers.length} test players` });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to add test players" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -76,8 +76,29 @@ export default function Lobby() {
     }
   });
 
+  const addTestPlayersMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", `/api/games/${code}/add-test-players`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      toast({
+        title: "Test Players Added!",
+        description: "8 test players have been added to the game",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add test players",
+        variant: "destructive"
+      });
+    }
+  });
+
   useEffect(() => {
-    if (gameData && playerId) {
+    if (gameData?.players && playerId) {
       const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
       if (currentPlayer) {
         setHasJoined(true);
@@ -86,7 +107,7 @@ export default function Lobby() {
   }, [gameData, playerId]);
 
   useEffect(() => {
-    if (gameData && gameData.gameRoom.phase !== "lobby") {
+    if (gameData?.gameRoom && gameData.gameRoom.phase !== "lobby") {
       // Redirect to appropriate phase
       switch (gameData.gameRoom.phase) {
         case "town_naming":
@@ -129,7 +150,7 @@ export default function Lobby() {
   const handleStartGame = () => {
     if (!gameData?.players || gameData.players.length < 1) {
       toast({
-        title: "Not enough players",
+        title: "Not enough players", 
         description: "Need at least 1 player to start",
         variant: "destructive"
       });
@@ -182,8 +203,8 @@ export default function Lobby() {
     );
   }
 
-  const isHost = playerId === gameData.gameRoom.hostId;
-  const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
+  const isHost = playerId === gameData?.gameRoom?.hostId;
+  const currentPlayer = gameData?.players?.find((p: any) => p.playerId === playerId);
 
   return (
     <div className="min-h-screen bg-background">
@@ -220,13 +241,13 @@ export default function Lobby() {
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-2">Players</h2>
           <p className="text-gray-400 text-sm">
-            {gameData.players.length} players joined
+            {gameData?.players?.length || 0} players joined
           </p>
         </div>
 
         <PlayerList 
-          players={gameData.players} 
-          hostId={gameData.gameRoom.hostId}
+          players={gameData?.players || []} 
+          hostId={gameData?.gameRoom.hostId || ""}
         />
 
         {/* Name Entry (for new players) */}
@@ -258,7 +279,7 @@ export default function Lobby() {
         )}
 
         {/* Host Controls */}
-        {isHost && hasJoined && (
+        {isHost && hasJoined && gameData && (
           <div className="space-y-4">
             {/* Town Naming Options */}
             <Card className="bg-surface border-gray-700">
@@ -281,10 +302,20 @@ export default function Lobby() {
               </CardContent>
             </Card>
 
+            {/* Add Test Players Button */}
+            <Button
+              onClick={() => addTestPlayersMutation.mutate()}
+              disabled={addTestPlayersMutation.isPending}
+              variant="outline"
+              className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
+            >
+              {addTestPlayersMutation.isPending ? "Adding..." : "Add 8 Test Players"}
+            </Button>
+
             {/* Start Game Button */}
             <Button
               onClick={handleStartGame}
-              disabled={startGameMutation.isPending || gameData.players.length < 1}
+              disabled={startGameMutation.isPending || !gameData?.players || gameData.players.length < 1}
               className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
             >
               <Play className="w-5 h-5 mr-2" />
