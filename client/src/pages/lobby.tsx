@@ -210,6 +210,7 @@ export default function Lobby() {
   console.log("Debug - hasJoined:", hasJoined);
   console.log("Debug - playerId:", playerId);
   console.log("Debug - gameData:", gameData);
+  console.log("Debug - Show controls:", gameData && (hasJoined || isHost));
 
   return (
     <div className="min-h-screen bg-background">
@@ -283,8 +284,8 @@ export default function Lobby() {
           </Card>
         )}
 
-        {/* Host Controls - Show only if user is the host */}
-        {(isHost && gameData) && (
+        {/* Debug Controls - Show for testing */}
+        {gameData && (hasJoined || isHost) && (
           <div className="space-y-4">
             {/* Town Naming Options */}
             <Card className="bg-surface border-gray-700">
