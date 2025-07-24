@@ -1,0 +1,127 @@
+**Mafia Game Website Specification Document**
+
+---
+
+### Overview
+
+This document outlines the complete game logic, player flow, interface behavior, and special role mechanics for a self-hosted online version of the party game *Mafia*. It is designed for implementation on Replit or a similar platform. The game is playable from mobile or desktop, with players using unique 4-letter codes to join a shared lobby.
+
+---
+
+### Game Flow Summary
+
+1. **Lobby System**
+
+   * A host creates a game and receives a 4-letter game code.
+   * Players enter the lobby using that code and enter a name (max 15 characters, unique within that room).
+   * There is no minimum or maximum player count.
+   * Only the host sees the "Start Game" button.
+
+2. **Town Naming Phase (post-lobby)**
+
+   * Two options:
+
+     1. Host directly inputs town name and proceeds.
+     2. Voting mode:
+
+        * Each player submits a town name within a time limit.
+        * Players then vote for their favorite (not their own).
+        * Most votes wins. If tie, Mario Party-style random selector breaks the tie.
+
+3. **Role Assignment**
+
+   * All roles are assigned randomly after town name is selected.
+   * Roles include special characters and citizen roles (non-action roles).
+   * Host becomes a regular player from this point onward (no special privileges).
+
+4. **Night/Day Cycle**
+
+   * Game begins with Night 1, which is purely introductory (players identify each other physically).
+   * Subsequent nights involve role-specific actions.
+   * Days involve discussion, nominations, voting, and potential execution.
+
+5. **Voting System**
+
+   * Each day, one player is nominated to be voted on.
+   * Everyone (except the person on trial) votes yes/no to execute.
+   * Majority is required to eliminate the player.
+
+6. **Game End Conditions**
+
+   * Game ends only when there is no longer a possible path to change the outcome (e.g., Mafia outnumbers town, all Mafia eliminated, etc).
+
+---
+
+### Core Roles & Behavior
+
+#### **Mafia**
+
+* The Mafia collectively chooses one player to kill each night.
+* If multiple Mafia are alive, they vote to decide who performs the kill.
+* Only the person performing the kill can be blocked (by the Prostitute).
+
+#### **Sheriff**
+
+* Selects one person to investigate each night.
+* Result will return either:
+
+  * **MAFIA** (for Mafia or Joker)
+  * **NOT MAFIA** (for all others)
+  * **INCONCLUSIVE** (if blocked by Prostitute)
+
+#### **Doctor**
+
+* Selects one person each night to save.
+* If Mafia’s target and Doctor’s target match, the person survives.
+
+#### **Godfather** *(Mafia-aligned)*
+
+* If investigated, returns "NOT MAFIA."
+* Otherwise behaves like a standard Mafia member.
+
+#### **Joker**
+
+* Wins **only** if voted out during the day.
+* Loses if killed by Mafia or Vigilante.
+* If investigated, returns "MAFIA."
+
+#### **Prostitute**
+
+* Selects one player to sleep with each night.
+* If the selected player has an action, that action is blocked.
+* Must act **first** during the night to resolve blocks.
+* In games with multiple Mafia, Sheriffs, or Doctors, a designated performer must be selected each night.
+
+#### **Vigilante**
+
+* Has one bullet to use at any point during the day.
+* May announce their identity and shoot one player, who dies immediately.
+* Cannot shoot at night.
+* Note: One goal of the Vigilante could be to prevent a Joker win by killing them before a vote.
+
+---
+
+### Gameplay Mechanics
+
+* **Night Phase Inputs**
+
+  * Each action-taking player sees appropriate buttons/input selectors.
+  * The night phase proceeds only after **all relevant players** have submitted inputs.
+  * A timer fallback will advance the game if someone takes too long.
+
+* **Audio Functionality (optional)**
+
+  * The game will use audio cues to indicate state transitions (e.g., “Town, go to sleep,” “Mafia, wake up”).
+  * This can be implemented with pre-recorded voice lines or generated text-to-speech.
+
+---
+
+### Additional Implementation Notes
+
+* Animations, sound effects, and polish (e.g., Mario Party-style tie-breaker wheel) are lower priority and can be added once the game loop is functional.
+* Every UI element must be mobile-friendly.
+* A player can only vote once per day and cannot vote for themselves in town-naming or execution phases.
+
+---
+
+**Next Step:** Implement the lobby and town-naming pages, then test real-time role assignment and night action handling.
