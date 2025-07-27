@@ -119,7 +119,7 @@ export default function Home() {
               />
               <Button 
                 onClick={handleJoinGame}
-                disabled={joinGameMutation.isPending || roomCode.length !== 4}
+                disabled={joinGameMutation.isPending}
                 className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3"
               >
                 {joinGameMutation.isPending ? "Joining..." : "Join Game"}
