@@ -401,12 +401,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Game room not found" });
       }
 
+      const existingPlayers = await storage.getPlayersByGame(gameRoom.id);
+      const existingNames = new Set(existingPlayers.map(p => p.name));
+
       const testPlayers = [
         "Alice Johnson", "Bob Smith", "Carol Davis", "Dave Wilson",
         "Emma Taylor", "Frank Brown", "Grace Lee", "Harry Chen"
       ];
 
-      for (const name of testPlayers) {
+      // Filter out names that already exist
+      const newPlayers = testPlayers.filter(name => !existingNames.has(name));
+
+      if (newPlayers.length === 0) {
+        return res.json({ success: true, message: "All test players already exist" });
+      }
+
+      for (const name of newPlayers) {
         const playerId = nanoid();
         await storage.addPlayer({
           gameId: gameRoom.id,
@@ -419,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.json({ success: true, message: `Added ${testPlayers.length} test players` });
+      res.json({ success: true, message: `Added ${newPlayers.length} new test players` });
     } catch (error) {
       res.status(500).json({ message: "Failed to add test players" });
     }

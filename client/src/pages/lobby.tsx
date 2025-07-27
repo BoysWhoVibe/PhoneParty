@@ -83,11 +83,11 @@ export default function Lobby() {
       const response = await apiRequest("POST", `/api/games/${code}/add-test-players`);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
       toast({
-        title: "Test Players Added!",
-        description: "8 test players have been added to the game",
+        title: "Test Players Updated!",
+        description: data.message,
       });
     },
     onError: () => {
