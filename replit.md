@@ -148,4 +148,6 @@ Preferred communication style: Simple, everyday language.
 - ✅ Added consistent header with room code display throughout game flow
 - ✅ Fixed missing GameHeader in role assignment page - home button now appears consistently
 - ✅ Resolved JSX syntax errors and TypeScript type issues in role assignment component
+- ✅ Fixed join game button functionality - players can now join games from home page
+- ✅ Implemented lobby-only joining - players can only join games still in lobby phase
 - 🎯 Next: Complete town naming phase implementation and role assignment flow

@@ -237,7 +237,7 @@ export default function Lobby() {
           hostId={gameData?.gameRoom.hostId || ""}
         />
 
-        {/* Name Entry (for new players) */}
+        {/* Name Entry (for new players) or Game Started Message */}
         {!hasJoined && (
           <Card className="bg-surface border-2 border-dashed border-gray-600 mb-6">
             <CardContent className="p-4">
@@ -247,26 +247,34 @@ export default function Lobby() {
                 </div>
                 {gameData?.gameRoom?.phase !== "lobby" ? (
                   <div className="mb-3">
-                    <p className="text-sm text-yellow-400 mb-1">⚠️ Game in progress</p>
-                    <p className="text-xs text-gray-400">You can still join, but the game has already started</p>
+                    <p className="text-sm text-red-400 mb-1">🚫 Game Already Started</p>
+                    <p className="text-xs text-gray-400 mb-3">This game is in progress and no longer accepting new players</p>
+                    <Button
+                      onClick={() => setLocation("/")}
+                      className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2"
+                    >
+                      Return to Home
+                    </Button>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400 mb-3">Enter your name to join</p>
+                  <>
+                    <p className="text-sm text-gray-400 mb-3">Enter your name to join</p>
+                    <Input
+                      type="text"
+                      placeholder="Your name (max 15 chars)"
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
+                      className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary mb-3"
+                    />
+                    <Button
+                      onClick={handleJoinGame}
+                      disabled={joinMutation.isPending}
+                      className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2"
+                    >
+                      {joinMutation.isPending ? "Joining..." : "Join Game"}
+                    </Button>
+                  </>
                 )}
-                <Input
-                  type="text"
-                  placeholder="Your name (max 15 chars)"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
-                  className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary mb-3"
-                />
-                <Button
-                  onClick={handleJoinGame}
-                  disabled={joinMutation.isPending}
-                  className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2"
-                >
-                  {joinMutation.isPending ? "Joining..." : "Join Game"}
-                </Button>
               </div>
             </CardContent>
           </Card>
