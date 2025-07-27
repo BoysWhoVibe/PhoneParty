@@ -168,6 +168,14 @@ export default function Lobby() {
     }
   }, [gameData?.gameRoom?.townNamingMode]);
 
+  // Sync town name input with server data when server updates
+  useEffect(() => {
+    if (gameData?.gameRoom?.townName && !isEditingTownName) {
+      // Only update if we're not currently editing to avoid overwriting user input
+      setTownNameInput(gameData.gameRoom.townName);
+    }
+  }, [gameData?.gameRoom?.townName, isEditingTownName]);
+
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
     if (gameData?.gameRoom && gameData.gameRoom.phase !== "lobby" && hasJoined) {
@@ -219,10 +227,12 @@ export default function Lobby() {
       });
       return;
     }
-    setTownNameMutation.mutate(townNameInput);
+    // Store the value we're saving so we can keep it displayed
+    const valueToSave = townNameInput;
+    setTownNameMutation.mutate(valueToSave);
     setIsEditingTownName(false);
-    // Clear the input to force it to show the saved value from server
-    setTownNameInput("");
+    // Keep the saved value in the input until server updates
+    setTownNameInput(valueToSave);
   };
 
   const handleTownNameFocus = () => {
