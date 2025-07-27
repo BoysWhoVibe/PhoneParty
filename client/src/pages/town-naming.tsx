@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Timer from "@/components/ui/timer";
+import GameHeader from "@/components/ui/game-header";
 
 export default function TownNaming() {
   const { code } = useParams<{ code: string }>();
@@ -21,7 +22,7 @@ export default function TownNaming() {
   const { data: gameData, isLoading } = useQuery({
     queryKey: ["/api/games", code],
     refetchInterval: 2000,
-  });
+  }) as { data: any, isLoading: boolean };
 
   const submitNameMutation = useMutation({
     mutationFn: async (suggestion: string) => {
@@ -118,13 +119,12 @@ export default function TownNaming() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-surface shadow-lg border-b border-gray-700">
-        <div className="px-4 py-4 text-center">
-          <h1 className="text-xl font-semibold">Name Your Town</h1>
-          <p className="text-sm text-gray-400">Phase 1 of 2</p>
-        </div>
-      </div>
+      <GameHeader 
+        title="Name Your Town" 
+        subtitle="Phase 1 of 2"
+        gameCode={code}
+        showBackButton={true}
+      />
 
       {/* Timer */}
       <div className="px-4 py-4">

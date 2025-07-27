@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Check, ChevronRight } from "lucide-react";
 import Timer from "@/components/ui/timer";
+import GameHeader from "@/components/ui/game-header";
 
 export default function TownVoting() {
   const { code } = useParams<{ code: string }>();
@@ -21,7 +22,7 @@ export default function TownVoting() {
   const { data: gameData, isLoading } = useQuery({
     queryKey: ["/api/games", code],
     refetchInterval: 2000,
-  });
+  }) as { data: any, isLoading: boolean };
 
   const voteMutation = useMutation({
     mutationFn: async (suggestionId: number) => {
@@ -108,13 +109,12 @@ export default function TownVoting() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-surface shadow-lg border-b border-gray-700">
-        <div className="px-4 py-4 text-center">
-          <h1 className="text-xl font-semibold">Vote for Town Name</h1>
-          <p className="text-sm text-gray-400">Phase 2 of 2</p>
-        </div>
-      </div>
+      <GameHeader 
+        title="Vote for Town Name" 
+        subtitle="Phase 2 of 2"
+        gameCode={code}
+        showBackButton={true}
+      />
 
       {/* Timer */}
       <div className="px-4 py-4">

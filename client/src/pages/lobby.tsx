@@ -10,6 +10,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Share, Crown, Play } from "lucide-react";
 import PlayerList from "@/components/ui/player-list";
+import GameHeader from "@/components/ui/game-header";
 
 export default function Lobby() {
   const { code } = useParams<{ code: string }>();
@@ -214,33 +215,11 @@ export default function Lobby() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with Room Code */}
-      <div className="bg-surface shadow-lg border-b border-gray-700">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/")}
-              className="text-gray-400 hover:text-white p-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="text-center">
-              <p className="text-sm text-gray-400">Room Code</p>
-              <p className="text-2xl font-mono font-bold tracking-widest">{code}</p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShareCode}
-              className="text-gray-400 hover:text-white p-0"
-            >
-              <Share className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <GameHeader 
+        title="Game Lobby" 
+        gameCode={code}
+        showBackButton={true}
+      />
 
       {/* Player List */}
       <div className="px-4 py-6">
