@@ -321,7 +321,7 @@ export default function Lobby() {
                 disabled={saveTownNamingModeMutation.isPending}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
               >
-                {saveTownNamingModeMutation.isPending ? "Saving..." : "Save Town Name Mode"}
+                {saveTownNamingModeMutation.isPending ? "Saving..." : "Save"}
               </Button>
             </CardContent>
           </Card>
@@ -355,7 +355,7 @@ export default function Lobby() {
                     disabled={setTownNameMutation.isPending || !townNameInput}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
                   >
-                    {setTownNameMutation.isPending ? "Setting..." : "Lock in Town Name"}
+                    {setTownNameMutation.isPending ? "Saving..." : "Save"}
                   </Button>
                 </div>
               ) : null}
