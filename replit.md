@@ -146,4 +146,6 @@ Preferred communication style: Simple, everyday language.
 - ✅ Created environment-based feature toggling (debug mode, test players)
 - ✅ Fixed TypeScript errors in town naming and voting components
 - ✅ Added consistent header with room code display throughout game flow
+- ✅ Fixed missing GameHeader in role assignment page - home button now appears consistently
+- ✅ Resolved JSX syntax errors and TypeScript type issues in role assignment component
 - 🎯 Next: Complete town naming phase implementation and role assignment flow
