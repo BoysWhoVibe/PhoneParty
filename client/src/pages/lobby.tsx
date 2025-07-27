@@ -23,6 +23,7 @@ export default function Lobby() {
   const [hasJoined, setHasJoined] = useState(false);
   const [townNameInput, setTownNameInput] = useState("");
   const [isEditingTownName, setIsEditingTownName] = useState(false);
+  const [lastSavedTownName, setLastSavedTownName] = useState("");
   
   const playerId = localStorage.getItem("playerId");
   
@@ -109,7 +110,8 @@ export default function Lobby() {
       return response.json();
     },
     onSuccess: (data, variables) => {
-      // Ensure we keep the saved value displayed
+      // Store the successfully saved value
+      setLastSavedTownName(variables);
       setTownNameInput(variables);
       queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
       toast({
@@ -118,10 +120,9 @@ export default function Lobby() {
       });
     },
     onError: (error, variables) => {
-      // Revert to previous server value on error
-      if (gameData?.gameRoom?.townName) {
-        setTownNameInput(gameData.gameRoom.townName);
-      }
+      // Revert to last known good value
+      const fallbackValue = lastSavedTownName || gameData?.gameRoom?.townName || "";
+      setTownNameInput(fallbackValue);
       toast({
         title: "Error",
         description: "Failed to set town name",
@@ -174,13 +175,23 @@ export default function Lobby() {
     }
   }, [gameData?.gameRoom?.townNamingMode]);
 
-  // Sync town name input with server data when server updates (but not during saves)
+  // Initialize and sync town name only when needed
   useEffect(() => {
-    if (gameData?.gameRoom?.townName && !isEditingTownName && !setTownNameMutation.isPending) {
-      // Only update if we're not currently editing or saving to avoid overwriting user input
-      setTownNameInput(gameData.gameRoom.townName);
+    const serverTownName = gameData?.gameRoom?.townName;
+    
+    // Initialize on first load
+    if (serverTownName && !lastSavedTownName && !townNameInput) {
+      setTownNameInput(serverTownName);
+      setLastSavedTownName(serverTownName);
+      return;
     }
-  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending]);
+    
+    // Only sync from server if we haven't saved anything yet and not editing
+    if (serverTownName && !lastSavedTownName && !isEditingTownName && !setTownNameMutation.isPending) {
+      setTownNameInput(serverTownName);
+      setLastSavedTownName(serverTownName);
+    }
+  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending, lastSavedTownName, townNameInput]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
@@ -403,7 +414,7 @@ export default function Lobby() {
                       }}
                       type="text"
                       placeholder="Click to enter town name"
-                      value={townNameInput || gameData?.gameRoom?.townName || ""}
+                      value={townNameInput}
                       onChange={(e) => setTownNameInput(e.target.value.slice(0, 30))}
                       onFocus={handleTownNameFocus}
                       onBlur={handleTownNameBlur}
