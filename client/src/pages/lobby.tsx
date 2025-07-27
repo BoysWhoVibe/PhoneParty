@@ -22,6 +22,7 @@ export default function Lobby() {
   const [selectedTownNamingMode, setSelectedTownNamingMode] = useState("host");
   const [hasJoined, setHasJoined] = useState(false);
   const [townNameInput, setTownNameInput] = useState("");
+  const [isEditingTownName, setIsEditingTownName] = useState(false);
   
   const playerId = localStorage.getItem("playerId");
   
@@ -219,6 +220,34 @@ export default function Lobby() {
       return;
     }
     setTownNameMutation.mutate(townNameInput);
+    setIsEditingTownName(false);
+  };
+
+  const handleTownNameFocus = () => {
+    setIsEditingTownName(true);
+    // If there's a saved town name, use it as starting point
+    if (gameData?.gameRoom?.townName && !townNameInput) {
+      setTownNameInput(gameData.gameRoom.townName);
+    }
+  };
+
+  const handleTownNameBlur = () => {
+    // Small delay to allow save button click to register first
+    setTimeout(() => {
+      // Revert to saved town name if user clicks away without saving
+      if (gameData?.gameRoom?.townName) {
+        setTownNameInput(gameData.gameRoom.townName);
+      }
+      setIsEditingTownName(false);
+    }, 150);
+  };
+
+  const handleTownNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSetTownName();
+    } else if (e.key === 'Escape') {
+      handleTownNameBlur();
+    }
   };
 
   const handleSaveTownNamingMode = () => {
@@ -341,29 +370,37 @@ export default function Lobby() {
                   </h2>
                 </div>
               ) : isHost && gameData?.gameRoom?.townNamingMode === "host" ? (
-                // Host can always edit the town name in "host" mode
+                // Host can inline-edit the town name
                 <div className="space-y-3">
-                  {gameData?.gameRoom?.townName && (
-                    <div className="text-center p-3 bg-gray-800 rounded-lg border border-green-600 mb-3">
-                      <h2 className="text-xl font-bold text-green-400">
-                        {gameData.gameRoom.townName}
-                      </h2>
-                    </div>
+                  <div className="text-center p-4 bg-gray-800 rounded-lg border border-green-600">
+                    <Input
+                      type="text"
+                      placeholder="Click to enter town name"
+                      value={townNameInput || gameData?.gameRoom?.townName || ""}
+                      onChange={(e) => setTownNameInput(e.target.value.slice(0, 30))}
+                      onFocus={handleTownNameFocus}
+                      onBlur={handleTownNameBlur}
+                      onKeyDown={handleTownNameKeyDown}
+                      className={`text-center text-2xl font-bold border-0 bg-transparent focus:bg-gray-700 focus:border-primary ${
+                        isEditingTownName ? 'text-white' : 'text-green-400'
+                      } placeholder:text-green-400/50 focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                      style={{
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        boxShadow: 'none'
+                      }}
+                    />
+                  </div>
+                  
+                  {isEditingTownName && townNameInput && townNameInput !== gameData?.gameRoom?.townName && (
+                    <Button
+                      onClick={handleSetTownName}
+                      disabled={setTownNameMutation.isPending || !townNameInput}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+                    >
+                      {setTownNameMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
                   )}
-                  <Input
-                    type="text"
-                    placeholder="Enter town name (max 30 chars)"
-                    value={townNameInput}
-                    onChange={(e) => setTownNameInput(e.target.value.slice(0, 30))}
-                    className="w-full bg-gray-800 border-gray-600 focus:border-primary"
-                  />
-                  <Button
-                    onClick={handleSetTownName}
-                    disabled={setTownNameMutation.isPending || !townNameInput}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
-                  >
-                    {setTownNameMutation.isPending ? "Saving..." : "Save"}
-                  </Button>
                 </div>
               ) : null}
             </CardContent>
