@@ -62,7 +62,10 @@ export function assignRoles(playerCount: number): string[] {
 
 // Generate test players for development
 export function generateTestPlayers(): Array<{name: string, playerId: string}> {
-  const testNames = ["Alice", "Bob", "Carol", "Dave", "Emma", "Frank", "Grace", "Harry"];
+  const testNames = [
+    "Alice", "Bob", "Carol", "Dave", "Emma", "Frank", "Grace", "Harry",
+    "Ivy", "Jack", "Kate", "Leo", "Maya", "Noah", "Olivia", "Paul"
+  ];
   return testNames.map(name => ({
     name,
     playerId: nanoid()
