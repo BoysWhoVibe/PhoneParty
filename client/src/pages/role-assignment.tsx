@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Shield, VenetianMask, UserCheck, Heart, Dice6, Moon, Crosshair, User } from "lucide-react";
 import { ROLES } from "@shared/schema";
+import GameHeader from "@/components/ui/game-header";
 
 const roleIcons = {
   [ROLES.SHERIFF]: Shield,
@@ -48,12 +49,12 @@ export default function RoleAssignment() {
   const { data: gameData } = useQuery({
     queryKey: ["/api/games", code],
     refetchInterval: 2000,
-  });
+  }) as { data: any };
 
   const { data: roleData } = useQuery({
     queryKey: ["/api/games", code, "player", playerId, "role"],
     enabled: !!playerId,
-  });
+  }) as { data: any };
 
   useEffect(() => {
     if (gameData && gameData.gameRoom.phase === "night") {
@@ -82,8 +83,16 @@ export default function RoleAssignment() {
   const description = roleDescriptions[role as keyof typeof roleDescriptions] || "No description available.";
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="max-w-sm mx-auto text-center">
+    <div className="min-h-screen bg-background">
+      <GameHeader 
+        title="Role Assignment" 
+        subtitle="Your secret role for this game"
+        gameCode={code}
+        showBackButton={true}
+      />
+      
+      <div className="flex items-center justify-center px-4 py-8">
+        <div className="max-w-sm mx-auto text-center">
         {/* Town Name Result */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Welcome to</h1>
@@ -127,6 +136,7 @@ export default function RoleAssignment() {
           </svg>
           Keep your role secret!
         </p>
+        </div>
       </div>
     </div>
   );
