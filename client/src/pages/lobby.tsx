@@ -19,7 +19,7 @@ export default function Lobby() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [playerName, setPlayerName] = useState("");
-  const [townNamingMode, setTownNamingMode] = useState("host");
+  const [selectedTownNamingMode, setSelectedTownNamingMode] = useState("host");
   const [hasJoined, setHasJoined] = useState(false);
   const [townNameInput, setTownNameInput] = useState("");
   
@@ -59,12 +59,12 @@ export default function Lobby() {
     mutationFn: async () => {
       const response = await apiRequest("POST", `/api/games/${code}/start`, {
         hostId: gameData?.gameRoom?.hostId || playerId,
-        townNamingMode
+        townNamingMode: gameData?.gameRoom?.townNamingMode || "host"
       });
       return response.json();
     },
     onSuccess: () => {
-      if (townNamingMode === "vote") {
+      if (gameData?.gameRoom?.townNamingMode === "vote") {
         setLocation(`/town-naming/${code}`);
       } else {
         setLocation(`/role-assignment/${code}`);
@@ -134,7 +134,7 @@ export default function Lobby() {
       queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
       toast({
         title: "Town Naming Mode Updated!",
-        description: `Mode changed to "${townNamingMode === 'host' ? 'Host chooses name' : 'Players vote on name'}"`,
+        description: `Mode changed to "${selectedTownNamingMode === 'host' ? 'Host chooses name' : 'Players vote on name'}"`,
       });
     },
     onError: () => {
@@ -156,6 +156,13 @@ export default function Lobby() {
       }
     }
   }, [gameData, playerId]);
+
+  // Sync local town naming mode with server data
+  useEffect(() => {
+    if (gameData?.gameRoom?.townNamingMode) {
+      setSelectedTownNamingMode(gameData.gameRoom.townNamingMode);
+    }
+  }, [gameData?.gameRoom?.townNamingMode]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
@@ -212,7 +219,7 @@ export default function Lobby() {
   };
 
   const handleSaveTownNamingMode = () => {
-    saveTownNamingModeMutation.mutate(townNamingMode);
+    saveTownNamingModeMutation.mutate(selectedTownNamingMode);
   };
 
   const handleStartGame = () => {
@@ -293,8 +300,8 @@ export default function Lobby() {
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3">Town Name Setup</h3>
               <RadioGroup
-                value={townNamingMode}
-                onValueChange={setTownNamingMode}
+                value={selectedTownNamingMode}
+                onValueChange={setSelectedTownNamingMode}
                 className="space-y-3 mb-4"
               >
                 <div className="flex items-center space-x-3">
@@ -318,7 +325,7 @@ export default function Lobby() {
         )}
 
         {/* Town Name Section - Show for all players, input only for host when "host" mode */}
-        {(gameData?.gameRoom?.townName || (isHost && townNamingMode === "host")) && (
+        {(gameData?.gameRoom?.townName || (isHost && gameData?.gameRoom?.townNamingMode === "host")) && (
           <Card className="bg-surface border-gray-700 mb-6">
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3">Town Name</h3>
@@ -330,7 +337,7 @@ export default function Lobby() {
                     {gameData.gameRoom.townName}
                   </h2>
                 </div>
-              ) : isHost && townNamingMode === "host" ? (
+              ) : isHost && gameData?.gameRoom?.townNamingMode === "host" ? (
                 // Host input mode - only host can see when "host chooses name" is selected
                 <div className="space-y-3">
                   <Input
