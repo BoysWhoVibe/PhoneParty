@@ -19,11 +19,28 @@ export function registerPhaseRoutes(app: Express) {
         return res.status(400).json({ message: "Need at least 1 player to start" });
       }
 
+      // Assign roles to all players
+      const roles = assignRoles(players.length);
+      const playerRoles: { [playerId: string]: string } = {};
+      
+      players.forEach((player, index) => {
+        playerRoles[player.playerId] = roles[index];
+      });
+
       // Determine next phase based on town naming mode
-      const nextPhase = gameRoom.townNamingMode === "host" ? "role-assignment" : "town-naming";
+      const nextPhase = gameRoom.townNamingMode === "host" ? "role_assignment" : "town_naming";
+
+      const updatedGameState = {
+        roles: playerRoles,
+        nightActions: {},
+        dayVotes: {},
+        phaseStartTime: Date.now(),
+        phaseDuration: 300000 // 5 minutes default
+      };
 
       const updatedRoom = await storage.updateGameRoom(gameRoom.id, {
-        phase: nextPhase
+        phase: nextPhase,
+        gameState: updatedGameState
       });
 
       res.json({ gameRoom: updatedRoom });

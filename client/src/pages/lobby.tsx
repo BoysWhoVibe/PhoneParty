@@ -49,7 +49,7 @@ export default function Lobby() {
   const saveTownNamingModeMutation = useMutation({
     mutationFn: async (mode: string) => {
       const response = await apiRequest("POST", `/api/games/${code}/set-town-naming-mode`, {
-        townNamingMode: mode
+        mode: mode === "vote" ? "voting" : mode
       });
       return response.json();
     },

@@ -201,6 +201,13 @@ Preferred communication style: Simple, everyday language.
 - ✅ Verified all components now use standardized loading/error states and consolidated hooks
 - 🎯 All three optimization phases complete: Project ready for next development phase
 
+### July 27, 2025 - Critical Bug Fixes: Complete
+- ✅ Fixed role assignment system: Roles now properly assigned during game start
+- ✅ Fixed GameState TypeScript errors: Added required phaseStartTime and phaseDuration fields
+- ✅ Fixed town naming mode switching: Resolved client/server value mismatch ("vote" vs "voting")
+- ✅ Fixed request payload format: Corrected parameter name from townNamingMode to mode
+- ✅ Verified end-to-end functionality: Role lookup works, mode switching works, game starts properly
+
 ## Future Tasks & Reminders
 
 **IMPORTANT: Always keep this section synced with the separate "attached_assets/TODO list" file - update both with identical content when making changes.**
