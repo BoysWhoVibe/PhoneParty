@@ -19,7 +19,7 @@ export default function Lobby() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [playerName, setPlayerName] = useState("");
-  const [townNamingMode, setTownNamingMode] = useState("vote");
+  const [townNamingMode, setTownNamingMode] = useState("host");
   const [hasJoined, setHasJoined] = useState(false);
   
   const playerId = localStorage.getItem("playerId");
