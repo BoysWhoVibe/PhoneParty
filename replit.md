@@ -177,11 +177,40 @@ Preferred communication style: Simple, everyday language.
 ## Future Tasks & Reminders
 
 ### User's TODO List
-(Items to implement later - user will specify these)
 
-### Implementation Priority
-1. Town naming voting mode (from specification document)
-2. Role assignment system with all roles from specification
-3. Night/day cycle mechanics
+#### Core Game Mechanics (High Priority)
+1. Town naming voting mode implementation
+   - Players submit town name suggestions
+   - Voting on favorite names
+   - Mario Party-style tie-breaker
+
+2. Role assignment system
+   - Random role distribution based on player count
+   - All roles from specification document
+   - Role reveal to individual players
+
+3. Night/Day cycle mechanics
+   - Night phase: role-specific actions
+   - Day phase: discussion and voting
+   - Timer fallbacks for slow players
+
 4. Voting and elimination system
+   - Player nomination process
+   - Yes/no voting on execution
+   - Majority required logic
+
+#### Polish & Enhancement Features (Lower Priority)
 5. Audio cues and sound effects
+   - "Town, go to sleep" voice lines
+   - State transition sounds
+   - Text-to-speech integration
+
+6. Animations and visual polish
+   - Mario Party-style tie-breaker wheel
+   - Smooth transitions between phases
+   - Enhanced mobile UI interactions
+
+### User Preferences & Notes
+- Keep everything mobile-friendly
+- Maintain simple, everyday language in UI
+- Focus on reliable functionality over flashy features
