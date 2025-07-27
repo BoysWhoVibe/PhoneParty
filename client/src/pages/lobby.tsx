@@ -108,14 +108,20 @@ export default function Lobby() {
       });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      // Ensure we keep the saved value displayed
+      setTownNameInput(variables);
       queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
       toast({
         title: "Town Name Set!",
-        description: `Town name "${townNameInput}" has been locked in`,
+        description: `Town name "${variables}" has been saved`,
       });
     },
-    onError: () => {
+    onError: (error, variables) => {
+      // Revert to previous server value on error
+      if (gameData?.gameRoom?.townName) {
+        setTownNameInput(gameData.gameRoom.townName);
+      }
       toast({
         title: "Error",
         description: "Failed to set town name",
@@ -168,13 +174,13 @@ export default function Lobby() {
     }
   }, [gameData?.gameRoom?.townNamingMode]);
 
-  // Sync town name input with server data when server updates
+  // Sync town name input with server data when server updates (but not during saves)
   useEffect(() => {
-    if (gameData?.gameRoom?.townName && !isEditingTownName) {
-      // Only update if we're not currently editing to avoid overwriting user input
+    if (gameData?.gameRoom?.townName && !isEditingTownName && !setTownNameMutation.isPending) {
+      // Only update if we're not currently editing or saving to avoid overwriting user input
       setTownNameInput(gameData.gameRoom.townName);
     }
-  }, [gameData?.gameRoom?.townName, isEditingTownName]);
+  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
