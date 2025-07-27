@@ -221,6 +221,8 @@ export default function Lobby() {
     }
     setTownNameMutation.mutate(townNameInput);
     setIsEditingTownName(false);
+    // Clear the input to force it to show the saved value from server
+    setTownNameInput("");
   };
 
   const handleTownNameFocus = () => {
@@ -244,9 +246,13 @@ export default function Lobby() {
 
   const handleTownNameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSetTownName();
+      // Force blur to exit editing mode
+      (e.target as HTMLInputElement).blur();
     } else if (e.key === 'Escape') {
       handleTownNameBlur();
+      (e.target as HTMLInputElement).blur();
     }
   };
 
@@ -374,6 +380,11 @@ export default function Lobby() {
                 <div className="space-y-3">
                   <div className="text-center p-4 bg-gray-800 rounded-lg border border-green-600">
                     <Input
+                      ref={(ref) => {
+                        if (!isEditingTownName && ref) {
+                          ref.blur(); // Ensure input loses focus when not editing
+                        }
+                      }}
                       type="text"
                       placeholder="Click to enter town name"
                       value={townNameInput || gameData?.gameRoom?.townName || ""}
