@@ -394,7 +394,10 @@ export default function Lobby() {
                   
                   {isEditingTownName && townNameInput && townNameInput !== gameData?.gameRoom?.townName && (
                     <Button
-                      onClick={handleSetTownName}
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent blur from firing
+                        handleSetTownName();
+                      }}
                       disabled={setTownNameMutation.isPending || !townNameInput}
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
                     >
