@@ -165,4 +165,11 @@ Preferred communication style: Simple, everyday language.
 - ✅ Resolved issue where toast showed correct saved value but display showed previous value
 - ✅ Implemented optimistic updates with 1-second protection window after saves
 - ✅ Town name editing now works reliably with minor visual delay during sync
+
+### July 27, 2025 - UI/UX Improvements and Polish
+- ✅ Added Enter key support to homepage forms (create game and join game)
+- ✅ Implemented large, prominent room code display at top of lobby page
+- ✅ Repositioned start game button below town name and above players list
+- ✅ Improved visual flow and hierarchy throughout lobby interface
+- ✅ Enhanced user experience with consistent keyboard shortcuts
 - 🎯 Next: Complete town naming phase implementation and role assignment flow
