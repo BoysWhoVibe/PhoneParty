@@ -346,7 +346,7 @@ export default function Lobby() {
                   {gameData?.gameRoom?.townName && (
                     <div className="text-center p-3 bg-gray-800 rounded-lg border border-green-600 mb-3">
                       <h2 className="text-xl font-bold text-green-400">
-                        Current: {gameData.gameRoom.townName}
+                        {gameData.gameRoom.townName}
                       </h2>
                     </div>
                   )}
