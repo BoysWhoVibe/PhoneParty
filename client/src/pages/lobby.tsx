@@ -212,12 +212,7 @@ export default function Lobby() {
   // Host is simply the first player in the room (index 0)
   const isHost = hasJoined && gameData?.players?.length > 0 && gameData.players[0]?.playerId === playerId;
   
-  console.log("Debug - isHost:", isHost);
-  console.log("Debug - hasJoined:", hasJoined);
-  console.log("Debug - playerId:", playerId);
-  console.log("Debug - currentPlayer:", currentPlayer);
-  console.log("Debug - firstPlayerId:", gameData?.players?.[0]?.playerId);
-  console.log("Debug - Show controls:", isHost);
+
 
   return (
     <div className="min-h-screen bg-background">
