@@ -21,6 +21,7 @@ export default function Lobby() {
   const [playerName, setPlayerName] = useState("");
   const [townNamingMode, setTownNamingMode] = useState("host");
   const [hasJoined, setHasJoined] = useState(false);
+  const [townNameInput, setTownNameInput] = useState("");
   
   const playerId = localStorage.getItem("playerId");
   
@@ -99,6 +100,29 @@ export default function Lobby() {
     }
   });
 
+  const setTownNameMutation = useMutation({
+    mutationFn: async (townName: string) => {
+      const response = await apiRequest("POST", `/api/games/${code}/set-town-name`, {
+        townName
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      toast({
+        title: "Town Name Set!",
+        description: `Town name "${townNameInput}" has been locked in`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to set town name",
+        variant: "destructive"
+      });
+    }
+  });
+
   useEffect(() => {
     if (gameData?.players && playerId) {
       const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
@@ -150,6 +174,18 @@ export default function Lobby() {
       return;
     }
     joinMutation.mutate(playerName);
+  };
+
+  const handleSetTownName = () => {
+    if (!townNameInput || townNameInput.length > 30) {
+      toast({
+        title: "Invalid Town Name",
+        description: "Town name must be 1-30 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+    setTownNameMutation.mutate(townNameInput);
   };
 
   const handleStartGame = () => {
@@ -243,6 +279,43 @@ export default function Lobby() {
                   <Label htmlFor="vote" className="text-sm">Players vote on names</Label>
                 </div>
               </RadioGroup>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Town Name Section - Show for all players, input only for host when "host" mode */}
+        {(gameData?.gameRoom?.townName || (isHost && townNamingMode === "host")) && (
+          <Card className="bg-surface border-gray-700 mb-6">
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-3">Town Name</h3>
+              
+              {gameData?.gameRoom?.townName ? (
+                // Town name is locked in - show to all players
+                <div className="text-center p-4 bg-gray-800 rounded-lg border border-green-600">
+                  <h2 className="text-2xl font-bold text-green-400 mb-1">
+                    {gameData.gameRoom.townName}
+                  </h2>
+                  <p className="text-sm text-gray-400">Town Name</p>
+                </div>
+              ) : isHost && townNamingMode === "host" ? (
+                // Host input mode - only host can see when "host chooses name" is selected
+                <div className="space-y-3">
+                  <Input
+                    type="text"
+                    placeholder="Enter town name (max 30 chars)"
+                    value={townNameInput}
+                    onChange={(e) => setTownNameInput(e.target.value.slice(0, 30))}
+                    className="w-full bg-gray-800 border-gray-600 focus:border-primary"
+                  />
+                  <Button
+                    onClick={handleSetTownName}
+                    disabled={setTownNameMutation.isPending || !townNameInput}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+                  >
+                    {setTownNameMutation.isPending ? "Setting..." : "Lock in Town Name"}
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         )}

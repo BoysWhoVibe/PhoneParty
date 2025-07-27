@@ -193,6 +193,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Set town name directly (for host mode)
+  app.post("/api/games/:code/set-town-name", async (req, res) => {
+    try {
+      const { code } = req.params;
+      const { townName } = req.body;
+
+      if (!townName || townName.length > 30) {
+        return res.status(400).json({ message: "Town name must be 1-30 characters" });
+      }
+
+      const gameRoom = await storage.getGameRoomByCode(code);
+      if (!gameRoom || gameRoom.phase !== "lobby") {
+        return res.status(400).json({ message: "Can only set town name in lobby" });
+      }
+
+      await storage.updateGameRoom(gameRoom.id, {
+        townName
+      });
+
+      res.json({ success: true, townName });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to set town name" });
+    }
+  });
+
   // Submit town name suggestion
   app.post("/api/games/:code/town-name", async (req, res) => {
     try {
