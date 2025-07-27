@@ -363,6 +363,19 @@ export default function Lobby() {
         showBackButton={true}
       />
 
+      {/* Large Room Code Display */}
+      <div className="text-center mb-8 px-4">
+        <div className="mb-2">
+          <span className="text-gray-400 text-lg">Room Code</span>
+        </div>
+        <div className="text-5xl font-bold text-white tracking-widest font-mono bg-gray-800 inline-block px-6 py-3 rounded-lg border-2 border-primary">
+          {code}
+        </div>
+        <div className="mt-2">
+          <span className="text-gray-400 text-sm">Share this code with players</span>
+        </div>
+      </div>
+
       {/* Player List */}
       <div className="px-4 py-6">
         {/* Host Controls - Town Naming (only first player/host) */}
