@@ -225,6 +225,29 @@ export default function Lobby() {
 
       {/* Player List */}
       <div className="px-4 py-6">
+        {/* Host Controls - Town Naming (moved to top, host only) */}
+        {isHost && (
+          <Card className="bg-surface border-gray-700 mb-6">
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-3">Town Name Setup</h3>
+              <RadioGroup
+                value={townNamingMode}
+                onValueChange={setTownNamingMode}
+                className="space-y-3"
+              >
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="host" id="host" />
+                  <Label htmlFor="host" className="text-sm">Host chooses name</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="vote" id="vote" />
+                  <Label htmlFor="vote" className="text-sm">Players vote on names</Label>
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-2">Players</h2>
           <p className="text-gray-400 text-sm">
@@ -280,30 +303,9 @@ export default function Lobby() {
           </Card>
         )}
 
-        {/* Debug Controls - Show for testing */}
+        {/* Game Controls - Show for joined players */}
         {gameData && (hasJoined || isHost) && (
           <div className="space-y-4">
-            {/* Town Naming Options */}
-            <Card className="bg-surface border-gray-700">
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Town Name</h3>
-                <RadioGroup
-                  value={townNamingMode}
-                  onValueChange={setTownNamingMode}
-                  className="space-y-3"
-                >
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="host" id="host" />
-                    <Label htmlFor="host" className="text-sm">Host chooses name</Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="vote" id="vote" />
-                    <Label htmlFor="vote" className="text-sm">Players vote on names</Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-
             {/* Add Test Players Button - Show only in debug mode */}
             {config.enableTestPlayers && (
               <Button
