@@ -209,14 +209,15 @@ export default function Lobby() {
   }
 
   const currentPlayer = gameData?.players?.find((p: any) => p.playerId === playerId);
-  const isHost = (playerId === gameData?.gameRoom?.hostId) || (currentPlayer?.isHost === true);
+  // Host is simply the first player in the room (index 0)
+  const isHost = hasJoined && gameData?.players?.length > 0 && gameData.players[0]?.playerId === playerId;
   
   console.log("Debug - isHost:", isHost);
   console.log("Debug - hasJoined:", hasJoined);
   console.log("Debug - playerId:", playerId);
   console.log("Debug - currentPlayer:", currentPlayer);
-  console.log("Debug - hostId:", gameData?.gameRoom?.hostId);
-  console.log("Debug - Show controls:", gameData && (hasJoined || isHost));
+  console.log("Debug - firstPlayerId:", gameData?.players?.[0]?.playerId);
+  console.log("Debug - Show controls:", isHost);
 
   return (
     <div className="min-h-screen bg-background">
@@ -228,8 +229,8 @@ export default function Lobby() {
 
       {/* Player List */}
       <div className="px-4 py-6">
-        {/* Host Controls - Town Naming (show only after host has joined) */}
-        {isHost && hasJoined && (
+        {/* Host Controls - Town Naming (only first player/host) */}
+        {isHost && (
           <Card className="bg-surface border-gray-700 mb-6">
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3">Town Name Setup</h3>

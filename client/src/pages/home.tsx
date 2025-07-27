@@ -13,15 +13,25 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [roomCode, setRoomCode] = useState("");
+  const [hostName, setHostName] = useState("");
 
   const createGameMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/games");
-      return response.json();
+    mutationFn: async (name: string) => {
+      // First create the game room
+      const createResponse = await apiRequest("POST", "/api/games");
+      const gameData = await createResponse.json();
+      
+      // Then immediately join it as the first player (making us the host)
+      const joinResponse = await apiRequest("POST", `/api/games/${gameData.gameRoom.code}/join`, {
+        name
+      });
+      const joinData = await joinResponse.json();
+      
+      return { gameData, joinData };
     },
-    onSuccess: (data) => {
-      localStorage.setItem("playerId", data.playerId);
-      setLocation(`/lobby/${data.gameRoom.code}`);
+    onSuccess: ({ gameData, joinData }) => {
+      localStorage.setItem("playerId", joinData.player.playerId);
+      setLocation(`/lobby/${gameData.gameRoom.code}`);
     },
     onError: () => {
       toast({
@@ -50,7 +60,15 @@ export default function Home() {
   });
 
   const handleCreateGame = () => {
-    createGameMutation.mutate();
+    if (!hostName || hostName.length > 15) {
+      toast({
+        title: "Invalid Name",
+        description: "Name must be 1-15 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+    createGameMutation.mutate(hostName);
   };
 
   const handleJoinGame = () => {
@@ -89,15 +107,24 @@ export default function Home() {
             <div className="text-center mb-4">
               <PlusCircle className="w-12 h-12 text-primary mx-auto mb-2" />
               <h2 className="text-xl font-semibold">Host a Game</h2>
-              <p className="text-gray-400 text-sm">Create a new game room</p>
+              <p className="text-gray-400 text-sm">Enter your name to create a room</p>
             </div>
-            <Button 
-              onClick={handleCreateGame}
-              disabled={createGameMutation.isPending}
-              className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3"
-            >
-              {createGameMutation.isPending ? "Creating..." : "Create Game Room"}
-            </Button>
+            <div className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Your name (max 15 chars)"
+                value={hostName}
+                onChange={(e) => setHostName(e.target.value.slice(0, 15))}
+                className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary"
+              />
+              <Button 
+                onClick={handleCreateGame}
+                disabled={createGameMutation.isPending}
+                className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3"
+              >
+                {createGameMutation.isPending ? "Creating..." : "Create Game Room"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
