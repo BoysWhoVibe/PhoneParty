@@ -226,9 +226,10 @@ Preferred communication style: Simple, everyday language.
    - Voting on favorite names
    - Mario Party-style tie-breaker
 
-2. Role assignment system
-   - Random role distribution based on player count
-   - All roles from specification document
+2. Role assignment system enhancements
+   - Custom setup options for different player counts
+   - Host-selectable role breakdowns and quantities
+   - Preset configurations alongside current auto-assignment
    - Role reveal to individual players
 
 3. Night/Day cycle mechanics
@@ -256,3 +257,4 @@ Preferred communication style: Simple, everyday language.
 - Keep everything mobile-friendly
 - Maintain simple, everyday language in UI
 - Focus on reliable functionality over flashy features
+- Role assignment system needs flexibility: custom setups by player count + host-selectable role distributions
