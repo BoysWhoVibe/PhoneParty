@@ -5,8 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useGameMutations } from "@/hooks/use-game-mutations";
+import { useGameData } from "@/hooks/use-game-data";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Share, Crown, Play } from "lucide-react";
 import PlayerList from "@/components/ui/player-list";
@@ -26,116 +28,23 @@ export default function Lobby() {
   const [serverSyncKey, setServerSyncKey] = useState(0);
   
   const playerId = localStorage.getItem("playerId");
-  
-  const { data: gameData, isLoading } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000, // Poll every 2 seconds
-  }) as { data: any, isLoading: boolean };
+  const { data: gameData, isLoading } = useGameData(code);
+  const { joinGame, startGame, addTestPlayers, setTownName } = useGameMutations();
 
-  const joinMutation = useMutation({
-    mutationFn: async (name: string) => {
-      const response = await apiRequest("POST", `/api/games/${code}/join`, {
-        name
-      });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      localStorage.setItem("playerId", data.player.playerId);
-      setHasJoined(true);
-      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
-      toast({
-        title: "Joined!",
-        description: "You have joined the game",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to join game",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const startGameMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/games/${code}/start`, {
-        hostId: gameData?.gameRoom?.hostId || playerId,
-        townNamingMode: gameData?.gameRoom?.townNamingMode || "host"
-      });
-      return response.json();
-    },
-    onSuccess: () => {
-      if (gameData?.gameRoom?.townNamingMode === "vote") {
-        setLocation(`/town-naming/${code}`);
-      } else {
-        setLocation(`/role-assignment/${code}`);
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to start game",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const addTestPlayersMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/games/${code}/add-test-players`);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
-      toast({
-        title: "Test Players Updated!",
-        description: data.message,
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to add test players",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const setTownNameMutation = useMutation({
-    mutationFn: async (townName: string) => {
-      const response = await apiRequest("POST", `/api/games/${code}/set-town-name`, {
-        townName
-      });
-      const result = await response.json();
-      return result;
-    },
-    onSuccess: (data, variables) => {
-      // Immediately set the input to show the server-confirmed value
-      setTownNameInput(data.townName);
+  // Custom town name mutation with sync protection
+  const townNameMutation = {
+    mutate: (townName: string) => {
+      // Immediately set the input to show the value we're saving
+      setTownNameInput(townName);
       
-      // Block server sync temporarily to prevent override
+      // Block server sync temporarily to prevent override  
       setServerSyncKey(prev => prev + 1);
       
-      // Invalidate queries to get fresh data, but delay to let our value stick
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
-      }, 500);
-      
-      toast({
-        title: "Town Name Set!",
-        description: `Town name "${data.townName}" has been saved`,
-      });
+      // Call the consolidated mutation
+      setTownName.mutate({ code: code!, townName });
     },
-    onError: (error, variables) => {
-      // On error, keep the current input value and show error
-      toast({
-        title: "Error",
-        description: "Failed to set town name",
-        variant: "destructive"
-      });
-    }
-  });
+    isPending: setTownName.isPending
+  };
 
   const saveTownNamingModeMutation = useMutation({
     mutationFn: async (mode: string) => {
@@ -186,20 +95,20 @@ export default function Lobby() {
     const serverTownName = gameData?.gameRoom?.townName;
     
     // Only sync if not editing, no pending mutations, and no recent saves blocking sync
-    if (serverTownName && !isEditingTownName && !setTownNameMutation.isPending && serverSyncKey === 0) {
+    if (serverTownName && !isEditingTownName && !setTownName.isPending && serverSyncKey === 0) {
       setTownNameInput(serverTownName);
     }
-  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending, serverSyncKey]);
+  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownName.isPending, serverSyncKey]);
 
   // Re-enable server sync after mutation completes
   useEffect(() => {
-    if (serverSyncKey > 0 && !setTownNameMutation.isPending) {
+    if (serverSyncKey > 0 && !setTownName.isPending) {
       const timer = setTimeout(() => {
         setServerSyncKey(0);
       }, 1000); // Block server sync for 1 second after save
       return () => clearTimeout(timer);
     }
-  }, [serverSyncKey, setTownNameMutation.isPending]);
+  }, [serverSyncKey, setTownName.isPending]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
@@ -240,7 +149,8 @@ export default function Lobby() {
       });
       return;
     }
-    joinMutation.mutate(playerName);
+    joinGame.mutate({ code: code!, name: playerName });
+    setHasJoined(true);
   };
 
   const handleSetTownName = () => {
@@ -255,7 +165,7 @@ export default function Lobby() {
     
     const valueToSave = townNameInput.trim();
     setIsEditingTownName(false);
-    setTownNameMutation.mutate(valueToSave);
+    townNameMutation.mutate(valueToSave);
   };
 
   const handleTownNameFocus = () => {
@@ -294,15 +204,15 @@ export default function Lobby() {
   };
 
   const handleStartGame = () => {
-    if (!gameData?.players || gameData.players.length < 1) {
-      toast({
-        title: "Not enough players", 
-        description: "Need at least 1 player to start",
-        variant: "destructive"
-      });
-      return;
-    }
-    startGameMutation.mutate();
+    startGame.mutate({
+      code: code!,
+      hostId: gameData?.gameRoom?.hostId || playerId!,
+      townNamingMode: gameData?.gameRoom?.townNamingMode || "host"
+    });
+  };
+
+  const handleAddTestPlayers = () => {
+    addTestPlayers.mutate(code!);
   };
 
   const handleShareCode = async () => {

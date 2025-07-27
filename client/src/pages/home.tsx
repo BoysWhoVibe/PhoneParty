@@ -1,63 +1,17 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useGameMutations } from "@/hooks/use-game-mutations";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, Users, Info, VenetianMask } from "lucide-react";
 import ConnectionStatus from "@/components/ui/connection-status";
 
 export default function Home() {
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [roomCode, setRoomCode] = useState("");
   const [hostName, setHostName] = useState("");
-
-  const createGameMutation = useMutation({
-    mutationFn: async (name: string) => {
-      // First create the game room
-      const createResponse = await apiRequest("POST", "/api/games");
-      const gameData = await createResponse.json();
-      
-      // Then immediately join it as the first player (making us the host)
-      const joinResponse = await apiRequest("POST", `/api/games/${gameData.gameRoom.code}/join`, {
-        name
-      });
-      const joinData = await joinResponse.json();
-      
-      return { gameData, joinData };
-    },
-    onSuccess: ({ gameData, joinData }) => {
-      localStorage.setItem("playerId", joinData.player.playerId);
-      setLocation(`/lobby/${gameData.gameRoom.code}`);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create game room",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const joinGameMutation = useMutation({
-    mutationFn: async (code: string) => {
-      const response = await apiRequest("GET", `/api/games/${code}`);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setLocation(`/lobby/${data.gameRoom.code}`);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Game room not found",
-        variant: "destructive"
-      });
-    }
-  });
+  const { createGame, joinGame } = useGameMutations();
 
   const handleCreateGame = () => {
     if (!hostName || hostName.length > 15) {
@@ -68,7 +22,7 @@ export default function Home() {
       });
       return;
     }
-    createGameMutation.mutate(hostName);
+    createGame.mutate(hostName);
   };
 
   const handleJoinGame = () => {
@@ -80,7 +34,7 @@ export default function Home() {
       });
       return;
     }
-    joinGameMutation.mutate(roomCode.toUpperCase());
+    joinGame.mutate({ code: roomCode.toUpperCase() });
   };
 
   const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,10 +88,10 @@ export default function Home() {
               />
               <Button 
                 onClick={handleCreateGame}
-                disabled={createGameMutation.isPending}
+                disabled={createGame.isPending}
                 className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3"
               >
-                {createGameMutation.isPending ? "Creating..." : "Create Game Room"}
+                {createGame.isPending ? "Creating..." : "Create Game Room"}
               </Button>
             </div>
           </CardContent>
@@ -162,10 +116,10 @@ export default function Home() {
               />
               <Button 
                 onClick={handleJoinGame}
-                disabled={joinGameMutation.isPending}
+                disabled={joinGame.isPending}
                 className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3"
               >
-                {joinGameMutation.isPending ? "Joining..." : "Join Game"}
+                {joinGame.isPending ? "Joining..." : "Join Game"}
               </Button>
             </div>
           </CardContent>

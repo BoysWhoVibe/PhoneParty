@@ -75,8 +75,11 @@ export class MemStorage implements IStorage {
         nightActions: {},
         dayVotes: {},
         phaseStartTime: Date.now(),
-        phaseDuration: 0
-      },
+        phaseDuration: 0,
+        nominatedPlayer: undefined,
+        winners: undefined,
+        gameEndReason: undefined
+      } as GameState,
       id,
       createdAt: new Date(),
     };
