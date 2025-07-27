@@ -176,7 +176,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Future Tasks & Reminders
 
-**IMPORTANT: Always keep this section synced with the separate "TODO list" file - update both with identical content when making changes.**
+**IMPORTANT: Always keep this section synced with the separate "attached_assets/TODO list" file - update both with identical content when making changes.**
 
 ### User's TODO List
 
