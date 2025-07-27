@@ -292,10 +292,9 @@ export default function Lobby() {
               {gameData?.gameRoom?.townName ? (
                 // Town name is locked in - show to all players
                 <div className="text-center p-4 bg-gray-800 rounded-lg border border-green-600">
-                  <h2 className="text-2xl font-bold text-green-400 mb-1">
+                  <h2 className="text-2xl font-bold text-green-400">
                     {gameData.gameRoom.townName}
                   </h2>
-                  <p className="text-sm text-gray-400">Town Name</p>
                 </div>
               ) : isHost && townNamingMode === "host" ? (
                 // Host input mode - only host can see when "host chooses name" is selected
