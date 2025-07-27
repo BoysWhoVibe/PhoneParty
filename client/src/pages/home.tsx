@@ -88,6 +88,20 @@ export default function Home() {
     setRoomCode(value);
   };
 
+  const handleHostNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCreateGame();
+    }
+  };
+
+  const handleRoomCodeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleJoinGame();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-gray-900 to-gray-800 px-4 py-8">
       {/* Header */}
@@ -115,6 +129,7 @@ export default function Home() {
                 placeholder="Your name (max 15 chars)"
                 value={hostName}
                 onChange={(e) => setHostName(e.target.value.slice(0, 15))}
+                onKeyDown={handleHostNameKeyDown}
                 className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary"
               />
               <Button 
@@ -142,6 +157,7 @@ export default function Home() {
                 placeholder="ABCD"
                 value={roomCode}
                 onChange={handleRoomCodeChange}
+                onKeyDown={handleRoomCodeKeyDown}
                 className="text-center text-2xl font-mono tracking-widest uppercase bg-gray-800 border-gray-600 focus:border-secondary"
               />
               <Button 
