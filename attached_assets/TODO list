@@ -1,6 +1,10 @@
 # Mafia Game TODO List
 
-**IMPORTANT: Always keep this file synced with the TODO section in replit.md - update both files with identical content when making changes.**
+**SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**
+1. Update replit.md 
+2. Update attached_assets/TODO list (this file)
+3. Use identical content in both locations
+4. Verify both changes completed successfully before proceeding
 
 ## Future Tasks & Features to Implement
 

@@ -216,7 +216,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Future Tasks & Reminders
 
-**IMPORTANT: Always keep this section synced with the separate "attached_assets/TODO list" file - update both with identical content when making changes.**
+**SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**
+1. Update replit.md (this file) 
+2. Update attached_assets/TODO list
+3. Use identical content in both locations
+4. Verify both changes completed successfully before proceeding
 
 ### User's TODO List
 
