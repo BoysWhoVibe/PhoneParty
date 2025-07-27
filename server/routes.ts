@@ -179,7 +179,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phase,
         townNamingMode,
         gameState: {
-          ...gameRoom.gameState,
+          roles: gameRoom.gameState?.roles || {},
+          nightActions: gameRoom.gameState?.nightActions || {},
+          dayVotes: gameRoom.gameState?.dayVotes || {},
           phaseStartTime: Date.now(),
           phaseDuration: townNamingMode === "vote" ? 60000 : 0 // 1 minute for town naming
         }
@@ -275,8 +277,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phase: "role_assignment",
         currentDay: 1,
         gameState: {
-          ...gameRoom.gameState,
           roles: roleAssignments,
+          nightActions: gameRoom.gameState?.nightActions || {},
+          dayVotes: gameRoom.gameState?.dayVotes || {},
           phaseStartTime: Date.now(),
           phaseDuration: 10000 // 10 seconds to read role
         }
@@ -303,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gameId: gameRoom.id,
         playerId,
         phase: "night",
-        day: gameRoom.currentDay,
+        day: gameRoom.currentDay || 1,
         actionType,
         targetId,
         data: null
@@ -329,9 +332,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateGameRoom(gameRoom.id, {
         phase: "voting",
         gameState: {
-          ...gameRoom.gameState,
-          nominatedPlayer: targetId,
+          roles: gameRoom.gameState?.roles || {},
+          nightActions: gameRoom.gameState?.nightActions || {},
           dayVotes: {},
+          nominatedPlayer: targetId,
           phaseStartTime: Date.now(),
           phaseDuration: 90000 // 90 seconds to vote
         }
@@ -358,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gameId: gameRoom.id,
         playerId,
         phase: "voting",
-        day: gameRoom.currentDay,
+        day: gameRoom.currentDay || 1,
         actionType: "elimination_vote",
         targetId: vote,
         data: null
