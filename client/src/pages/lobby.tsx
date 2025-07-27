@@ -108,19 +108,26 @@ export default function Lobby() {
       const response = await apiRequest("POST", `/api/games/${code}/set-town-name`, {
         townName
       });
-      return response.json();
+      const result = await response.json();
+      
+      // Return the actual saved value from server response
+      return { savedTownName: result.townName || townName };
     },
     onSuccess: (data, variables) => {
-      // Confirm the save was successful - keep the pending value
-      const savedValue = pendingSaveValue.current;
-      setLastSavedTownName(savedValue);
-      setTownNameInput(savedValue);
+      // Use the server-confirmed value, not variables
+      const confirmedValue = data.savedTownName || variables;
+      setLastSavedTownName(confirmedValue);
+      setTownNameInput(confirmedValue);
       pendingSaveValue.current = "";
       
-      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      // Wait for server state before invalidating
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      }, 100);
+      
       toast({
         title: "Town Name Set!",
-        description: `Town name "${savedValue}" has been saved`,
+        description: `Town name "${confirmedValue}" has been saved`,
       });
     },
     onError: (error, variables) => {
@@ -185,11 +192,11 @@ export default function Lobby() {
     const serverTownName = gameData?.gameRoom?.townName;
     
     // Only initialize if we have no local state and no pending saves
-    if (serverTownName && !lastSavedTownName && !townNameInput && !pendingSaveValue.current) {
+    if (serverTownName && !lastSavedTownName && !townNameInput && !pendingSaveValue.current && !setTownNameMutation.isPending) {
       setTownNameInput(serverTownName);
       setLastSavedTownName(serverTownName);
     }
-  }, [gameData?.gameRoom?.townName, lastSavedTownName, townNameInput]);
+  }, [gameData?.gameRoom?.townName, lastSavedTownName, townNameInput, setTownNameMutation.isPending]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
@@ -243,14 +250,13 @@ export default function Lobby() {
       return;
     }
     // Store the exact value we're about to save
-    const valueToSave = townNameInput;
+    const valueToSave = townNameInput.trim();
     pendingSaveValue.current = valueToSave;
     
-    setTownNameMutation.mutate(valueToSave);
     setIsEditingTownName(false);
-    // Immediately update to show the value being saved
-    setTownNameInput(valueToSave);
-    setLastSavedTownName(valueToSave);
+    
+    // Don't update local state until server confirms
+    setTownNameMutation.mutate(valueToSave);
   };
 
   const handleTownNameFocus = () => {
