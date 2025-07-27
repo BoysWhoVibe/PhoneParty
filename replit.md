@@ -173,3 +173,15 @@ Preferred communication style: Simple, everyday language.
 - ✅ Improved visual flow and hierarchy throughout lobby interface
 - ✅ Enhanced user experience with consistent keyboard shortcuts
 - 🎯 Next: Complete town naming phase implementation and role assignment flow
+
+## Future Tasks & Reminders
+
+### User's TODO List
+(Items to implement later - user will specify these)
+
+### Implementation Priority
+1. Town naming voting mode (from specification document)
+2. Role assignment system with all roles from specification
+3. Night/day cycle mechanics
+4. Voting and elimination system
+5. Audio cues and sound effects
