@@ -109,7 +109,8 @@ export default function Lobby() {
   }, [gameData, playerId]);
 
   useEffect(() => {
-    if (gameData?.gameRoom && gameData.gameRoom.phase !== "lobby") {
+    // Only redirect to other phases if the user has actually joined the game
+    if (gameData?.gameRoom && gameData.gameRoom.phase !== "lobby" && hasJoined) {
       // Redirect to appropriate phase
       switch (gameData.gameRoom.phase) {
         case "town_naming":
@@ -135,7 +136,7 @@ export default function Lobby() {
           break;
       }
     }
-  }, [gameData, code, setLocation]);
+  }, [gameData, code, setLocation, hasJoined]);
 
   const handleJoinGame = () => {
     if (!playerName || playerName.length > 15) {
@@ -244,7 +245,14 @@ export default function Lobby() {
                 <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center mx-auto mb-2">
                   <Crown className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className="text-sm text-gray-400 mb-3">Enter your name to join</p>
+                {gameData?.gameRoom?.phase !== "lobby" ? (
+                  <div className="mb-3">
+                    <p className="text-sm text-yellow-400 mb-1">⚠️ Game in progress</p>
+                    <p className="text-xs text-gray-400">You can still join, but the game has already started</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 mb-3">Enter your name to join</p>
+                )}
                 <Input
                   type="text"
                   placeholder="Your name (max 15 chars)"
