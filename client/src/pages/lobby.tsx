@@ -23,6 +23,7 @@ export default function Lobby() {
   const [hasJoined, setHasJoined] = useState(false);
   const [townNameInput, setTownNameInput] = useState("");
   const [isEditingTownName, setIsEditingTownName] = useState(false);
+  const [serverSyncKey, setServerSyncKey] = useState(0);
   
   const playerId = localStorage.getItem("playerId");
   
@@ -113,8 +114,13 @@ export default function Lobby() {
       // Immediately set the input to show the server-confirmed value
       setTownNameInput(data.townName);
       
-      // Invalidate queries to get fresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      // Block server sync temporarily to prevent override
+      setServerSyncKey(prev => prev + 1);
+      
+      // Invalidate queries to get fresh data, but delay to let our value stick
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      }, 500);
       
       toast({
         title: "Town Name Set!",
@@ -175,14 +181,25 @@ export default function Lobby() {
     }
   }, [gameData?.gameRoom?.townNamingMode]);
 
-  // Sync town name from server only when not editing and no mutations pending
+  // Sync town name from server, but respect recent saves
   useEffect(() => {
     const serverTownName = gameData?.gameRoom?.townName;
     
-    if (serverTownName && !isEditingTownName && !setTownNameMutation.isPending) {
+    // Only sync if not editing, no pending mutations, and no recent saves blocking sync
+    if (serverTownName && !isEditingTownName && !setTownNameMutation.isPending && serverSyncKey === 0) {
       setTownNameInput(serverTownName);
     }
-  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending]);
+  }, [gameData?.gameRoom?.townName, isEditingTownName, setTownNameMutation.isPending, serverSyncKey]);
+
+  // Re-enable server sync after mutation completes
+  useEffect(() => {
+    if (serverSyncKey > 0 && !setTownNameMutation.isPending) {
+      const timer = setTimeout(() => {
+        setServerSyncKey(0);
+      }, 1000); // Block server sync for 1 second after save
+      return () => clearTimeout(timer);
+    }
+  }, [serverSyncKey, setTownNameMutation.isPending]);
 
   useEffect(() => {
     // Only redirect to other phases if the user has actually joined the game
