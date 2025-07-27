@@ -208,13 +208,14 @@ export default function Lobby() {
     );
   }
 
-  const isHost = playerId === gameData?.gameRoom?.hostId;
   const currentPlayer = gameData?.players?.find((p: any) => p.playerId === playerId);
+  const isHost = (playerId === gameData?.gameRoom?.hostId) || (currentPlayer?.isHost === true);
   
   console.log("Debug - isHost:", isHost);
   console.log("Debug - hasJoined:", hasJoined);
   console.log("Debug - playerId:", playerId);
-  console.log("Debug - gameData:", gameData);
+  console.log("Debug - currentPlayer:", currentPlayer);
+  console.log("Debug - hostId:", gameData?.gameRoom?.hostId);
   console.log("Debug - Show controls:", gameData && (hasJoined || isHost));
 
   return (
