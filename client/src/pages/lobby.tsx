@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Share, Crown, Play } from "lucide-react";
 import PlayerList from "@/components/ui/player-list";
 import GameHeader from "@/components/ui/game-header";
+import { config } from "@/lib/config";
 
 export default function Lobby() {
   const { code } = useParams<{ code: string }>();
@@ -287,15 +288,17 @@ export default function Lobby() {
               </CardContent>
             </Card>
 
-            {/* Add Test Players Button - Show for everyone during development */}
-            <Button
-              onClick={() => addTestPlayersMutation.mutate()}
-              disabled={addTestPlayersMutation.isPending}
-              variant="outline"
-              className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
-            >
-              {addTestPlayersMutation.isPending ? "Adding..." : "Add 8 Test Players"}
-            </Button>
+            {/* Add Test Players Button - Show only in debug mode */}
+            {config.enableTestPlayers && (
+              <Button
+                onClick={() => addTestPlayersMutation.mutate()}
+                disabled={addTestPlayersMutation.isPending}
+                variant="outline"
+                className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
+              >
+                {addTestPlayersMutation.isPending ? "Adding..." : "Add 8 Test Players (Debug)"}
+              </Button>
+            )}
 
             {/* Start Game Button - Show for everyone during development */}
             <Button
