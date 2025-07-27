@@ -327,22 +327,29 @@ export default function Lobby() {
           </Card>
         )}
 
-        {/* Town Name Section - Show for all players, input only for host when "host" mode */}
+        {/* Town Name Section - Show for all players, input for host when "host" mode */}
         {(gameData?.gameRoom?.townName || (isHost && gameData?.gameRoom?.townNamingMode === "host")) && (
           <Card className="bg-surface border-gray-700 mb-6">
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3">Town Name</h3>
               
-              {gameData?.gameRoom?.townName ? (
-                // Town name is locked in - show to all players
+              {!isHost && gameData?.gameRoom?.townName ? (
+                // Non-host players see the town name as read-only
                 <div className="text-center p-4 bg-gray-800 rounded-lg border border-green-600">
                   <h2 className="text-2xl font-bold text-green-400">
                     {gameData.gameRoom.townName}
                   </h2>
                 </div>
               ) : isHost && gameData?.gameRoom?.townNamingMode === "host" ? (
-                // Host input mode - only host can see when "host chooses name" is selected
+                // Host can always edit the town name in "host" mode
                 <div className="space-y-3">
+                  {gameData?.gameRoom?.townName && (
+                    <div className="text-center p-3 bg-gray-800 rounded-lg border border-green-600 mb-3">
+                      <h2 className="text-xl font-bold text-green-400">
+                        Current: {gameData.gameRoom.townName}
+                      </h2>
+                    </div>
+                  )}
                   <Input
                     type="text"
                     placeholder="Enter town name (max 30 chars)"
