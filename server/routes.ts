@@ -406,7 +406,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const testPlayers = [
         "Alice Johnson", "Bob Smith", "Carol Davis", "Dave Wilson",
-        "Emma Taylor", "Frank Brown", "Grace Lee", "Harry Chen"
+        "Emma Taylor", "Frank Brown", "Grace Lee", "Harry Chen",
+        "Ian Miller", "Jane White", "Kevin Jones", "Luna Garcia",
+        "Max Rodriguez", "Nina Clark", "Owen Martinez", "Piper Lopez"
       ];
 
       // Filter out names that already exist

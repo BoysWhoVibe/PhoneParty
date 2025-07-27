@@ -296,7 +296,7 @@ export default function Lobby() {
                 variant="outline"
                 className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
               >
-                {addTestPlayersMutation.isPending ? "Adding..." : "Add 8 Test Players (Debug)"}
+                {addTestPlayersMutation.isPending ? "Adding..." : "Add Test Players (Debug)"}
               </Button>
             )}
 
