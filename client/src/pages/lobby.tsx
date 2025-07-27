@@ -225,8 +225,8 @@ export default function Lobby() {
 
       {/* Player List */}
       <div className="px-4 py-6">
-        {/* Host Controls - Town Naming (moved to top, host only) */}
-        {isHost && (
+        {/* Host Controls - Town Naming (show only after host has joined) */}
+        {isHost && hasJoined && (
           <Card className="bg-surface border-gray-700 mb-6">
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3">Town Name Setup</h3>
