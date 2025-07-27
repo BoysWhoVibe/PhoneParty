@@ -104,6 +104,8 @@ export default function Lobby() {
       const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
       if (currentPlayer) {
         setHasJoined(true);
+      } else {
+        setHasJoined(false);
       }
     }
   }, [gameData, playerId]);
