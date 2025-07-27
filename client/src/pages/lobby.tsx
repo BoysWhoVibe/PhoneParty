@@ -157,10 +157,13 @@ export default function Lobby() {
     }
   }, [gameData, playerId]);
 
-  // Sync local town naming mode with server data
+  // Sync local town naming mode with server data, defaulting to "host"
   useEffect(() => {
     if (gameData?.gameRoom?.townNamingMode) {
       setSelectedTownNamingMode(gameData.gameRoom.townNamingMode);
+    } else if (gameData?.gameRoom) {
+      // Set default to "host" mode for new games
+      setSelectedTownNamingMode("host");
     }
   }, [gameData?.gameRoom?.townNamingMode]);
 

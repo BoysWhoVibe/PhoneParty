@@ -8,7 +8,7 @@ export const gameRooms = pgTable("game_rooms", {
   hostId: text("host_id").notNull(),
   phase: text("phase").notNull().default("lobby"), // lobby, town_naming, town_voting, role_assignment, night, day, voting, game_end
   townName: text("town_name"),
-  townNamingMode: text("town_naming_mode").default("vote"), // host, vote
+  townNamingMode: text("town_naming_mode").default("host"), // host, vote
   currentDay: integer("current_day").default(0),
   gameState: jsonb("game_state").$type<GameState>(),
   createdAt: timestamp("created_at").defaultNow(),

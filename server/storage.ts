@@ -68,9 +68,15 @@ export class MemStorage implements IStorage {
       hostId: room.hostId,
       phase: room.phase || "lobby",
       townName: room.townName || null,
-      townNamingMode: room.townNamingMode || "vote",
+      townNamingMode: room.townNamingMode || "host",
       currentDay: room.currentDay || 0,
-      gameState: room.gameState || null,
+      gameState: room.gameState || {
+        roles: {},
+        nightActions: {},
+        dayVotes: {},
+        phaseStartTime: Date.now(),
+        phaseDuration: 0
+      },
       id,
       createdAt: new Date(),
     };

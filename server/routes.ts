@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hostId: playerId,
         phase: "lobby",
         townName: null,
-        townNamingMode: "vote",
+        townNamingMode: "host",
         currentDay: 0,
         gameState: {
           roles: {},
@@ -173,11 +173,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Need at least 1 player" });
       }
 
-      const phase = townNamingMode === "host" ? "role_assignment" : "town_naming";
+      const currentTownNamingMode = gameRoom.townNamingMode || "host";
+      const phase = currentTownNamingMode === "host" ? "role_assignment" : "town_naming";
       
       await storage.updateGameRoom(gameRoom.id, {
         phase,
-        townNamingMode,
+        townNamingMode: currentTownNamingMode,
         gameState: {
           roles: gameRoom.gameState?.roles || {},
           nightActions: gameRoom.gameState?.nightActions || {},
