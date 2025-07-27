@@ -76,24 +76,15 @@ export const getRoleInfo = (role: string): RoleInfo => {
 };
 
 export const isRoleEvil = (role: string): boolean => {
-  return [ROLES.MAFIA, ROLES.GODFATHER].includes(role);
+  return [ROLES.MAFIA, ROLES.GODFATHER].includes(role as any);
 };
 
 export const canRoleWinWithMafia = (role: string): boolean => {
-  return [ROLES.MAFIA, ROLES.GODFATHER].includes(role);
+  return [ROLES.MAFIA, ROLES.GODFATHER].includes(role as any);
 };
 
 export const canRoleWinWithTown = (role: string): boolean => {
-  return [ROLES.SHERIFF, ROLES.DOCTOR, ROLES.PROSTITUTE, ROLES.VIGILANTE, ROLES.CITIZEN].includes(role);
-};
-
-export const generateGameCode = (): string => {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let code = '';
-  for (let i = 0; i < 4; i++) {
-    code += letters.charAt(Math.floor(Math.random() * letters.length));
-  }
-  return code;
+  return [ROLES.SHERIFF, ROLES.DOCTOR, ROLES.PROSTITUTE, ROLES.VIGILANTE, ROLES.CITIZEN].includes(role as any);
 };
 
 export const calculateMajority = (totalVoters: number): number => {

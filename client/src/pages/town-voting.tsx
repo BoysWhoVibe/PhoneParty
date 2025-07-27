@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Check, ChevronRight } from "lucide-react";
 import Timer from "@/components/ui/timer";
 import GameHeader from "@/components/ui/game-header";
+import { useGameData } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 export default function TownVoting() {
   const { code } = useParams<{ code: string }>();
@@ -19,10 +22,7 @@ export default function TownVoting() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData, isLoading } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  }) as { data: any, isLoading: boolean };
+  const { data: gameData, isLoading, error } = useGameData(code);
 
   const voteMutation = useMutation({
     mutationFn: async (suggestionId: number) => {
@@ -71,31 +71,15 @@ export default function TownVoting() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <FullPageLoader message="Loading town voting..." />;
+  }
+
+  if (error) {
+    return <FullPageError message="Failed to load game data" onRetry={() => window.location.reload()} />;
   }
 
   if (!gameData) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md mx-4">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-red-500 mb-2">Game Not Found</h1>
-              <Button onClick={() => setLocation("/")} className="w-full">
-                Return Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <FullPageError message="Game not found" />;
   }
 
   // Calculate vote counts (this would normally come from backend)

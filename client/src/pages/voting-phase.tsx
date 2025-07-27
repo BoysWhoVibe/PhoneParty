@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ThumbsDown, ThumbsUp, User } from "lucide-react";
 import Timer from "@/components/ui/timer";
+import { useGameData } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 export default function VotingPhase() {
   const { code } = useParams<{ code: string }>();
@@ -17,10 +20,7 @@ export default function VotingPhase() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  });
+  const { data: gameData, isLoading, error } = useGameData(code);
 
   const voteMutation = useMutation({
     mutationFn: async (vote: "yes" | "no") => {
@@ -67,15 +67,16 @@ export default function VotingPhase() {
     queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
   };
 
+  if (isLoading) {
+    return <FullPageLoader message="Loading voting phase..." />;
+  }
+
+  if (error) {
+    return <FullPageError message="Failed to load game data" onRetry={() => window.location.reload()} />;
+  }
+
   if (!gameData) {
-    return (
-      <div className="min-h-screen day-gradient flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <FullPageError message="Game not found" />;
   }
 
   const nominatedPlayerId = gameData.gameRoom.gameState?.nominatedPlayer;

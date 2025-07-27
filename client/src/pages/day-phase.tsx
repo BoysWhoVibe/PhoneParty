@@ -1,10 +1,13 @@
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Skull, Search, Gavel, MoreVertical, User, Crown } from "lucide-react";
+import { useGameData } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 export default function DayPhase() {
   const { code } = useParams<{ code: string }>();
@@ -14,10 +17,7 @@ export default function DayPhase() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  });
+  const { data: gameData, isLoading, error } = useGameData(code);
 
   const nominateMutation = useMutation({
     mutationFn: async (targetId: string) => {
@@ -44,15 +44,16 @@ export default function DayPhase() {
     nominateMutation.mutate(targetId);
   };
 
+  if (isLoading) {
+    return <FullPageLoader message="Loading day phase..." />;
+  }
+
+  if (error) {
+    return <FullPageError message="Failed to load game data" onRetry={() => window.location.reload()} />;
+  }
+
   if (!gameData) {
-    return (
-      <div className="min-h-screen day-gradient flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <FullPageError message="Game not found" />;
   }
 
   // Redirect if not in day phase

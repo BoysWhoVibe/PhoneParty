@@ -365,10 +365,10 @@ export default function Lobby() {
                         e.preventDefault(); // Prevent blur from firing
                         handleSetTownName();
                       }}
-                      disabled={setTownNameMutation.isPending || !townNameInput}
+                      disabled={townNameMutation.isPending || !townNameInput}
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
                     >
-                      {setTownNameMutation.isPending ? "Saving..." : "Save"}
+                      {townNameMutation.isPending ? "Saving..." : "Save"}
                     </Button>
                   )}
                 </div>
@@ -382,11 +382,11 @@ export default function Lobby() {
           <div className="mb-6">
             <Button
               onClick={handleStartGame}
-              disabled={startGameMutation.isPending || !gameData?.players || gameData.players.length < 1}
+              disabled={startGame.isPending || !gameData?.players || gameData.players.length < 1}
               className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
             >
               <Play className="w-5 h-5 mr-2" />
-              {startGameMutation.isPending ? "Starting..." : "Start Game"}
+              {startGame.isPending ? "Starting..." : "Start Game"}
             </Button>
           </div>
         )}
@@ -434,10 +434,10 @@ export default function Lobby() {
                     />
                     <Button
                       onClick={handleJoinGame}
-                      disabled={joinMutation.isPending}
+                      disabled={joinGame.isPending}
                       className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2"
                     >
-                      {joinMutation.isPending ? "Joining..." : "Join Game"}
+                      {joinGame.isPending ? "Joining..." : "Join Game"}
                     </Button>
                   </>
                 )}
@@ -451,12 +451,12 @@ export default function Lobby() {
           <div className="space-y-4">
             {/* Add Test Players Button - Show only in debug mode */}
             <Button
-              onClick={() => addTestPlayersMutation.mutate()}
-              disabled={addTestPlayersMutation.isPending}
+              onClick={handleAddTestPlayers}
+              disabled={addTestPlayers.isPending}
               variant="outline"
               className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
             >
-              {addTestPlayersMutation.isPending ? "Adding..." : "Add Test Players (Debug)"}
+              {addTestPlayers.isPending ? "Adding..." : "Add Test Players (Debug)"}
             </Button>
           </div>
         )}

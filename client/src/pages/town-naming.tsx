@@ -3,11 +3,14 @@ import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Timer from "@/components/ui/timer";
 import GameHeader from "@/components/ui/game-header";
+import { useGameData } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 export default function TownNaming() {
   const { code } = useParams<{ code: string }>();
@@ -19,10 +22,7 @@ export default function TownNaming() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData, isLoading } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  }) as { data: any, isLoading: boolean };
+  const { data: gameData, isLoading, error } = useGameData(code);
 
   const submitNameMutation = useMutation({
     mutationFn: async (suggestion: string) => {

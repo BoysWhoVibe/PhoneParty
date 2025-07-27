@@ -76,10 +76,10 @@ export class MemStorage implements IStorage {
         dayVotes: {},
         phaseStartTime: Date.now(),
         phaseDuration: 0,
-        nominatedPlayer: undefined,
-        winners: undefined,
-        gameEndReason: undefined
-      } as GameState,
+        nominatedPlayer: undefined as string | undefined,
+        winners: undefined as string[] | undefined,
+        gameEndReason: undefined as string | undefined
+      } satisfies GameState,
       id,
       createdAt: new Date(),
     };

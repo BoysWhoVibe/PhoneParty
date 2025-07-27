@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Search, Check, ChevronRight, User } from "lucide-react";
 import { ROLES } from "@shared/schema";
+import { useGameData, usePlayerRole } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 export default function NightPhase() {
   const { code } = useParams<{ code: string }>();
@@ -18,15 +21,8 @@ export default function NightPhase() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  });
-
-  const { data: roleData } = useQuery({
-    queryKey: ["/api/games", code, "player", playerId, "role"],
-    enabled: !!playerId,
-  });
+  const { data: gameData, isLoading: gameLoading, error: gameError } = useGameData(code);
+  const { data: roleData, isLoading: roleLoading, error: roleError } = usePlayerRole(code, playerId);
 
   const submitActionMutation = useMutation({
     mutationFn: async ({ actionType, targetId }: { actionType: string; targetId: string }) => {
@@ -89,15 +85,16 @@ export default function NightPhase() {
     submitActionMutation.mutate({ actionType, targetId: selectedTarget });
   };
 
+  if (gameLoading || roleLoading) {
+    return <FullPageLoader message="Loading night phase..." />;
+  }
+
+  if (gameError || roleError) {
+    return <FullPageError message="Failed to load game data" onRetry={() => window.location.reload()} />;
+  }
+
   if (!gameData || !roleData) {
-    return (
-      <div className="min-h-screen night-gradient flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <FullPageError message="Game or role data not found" />;
   }
 
   const role = roleData.role;

@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import { Shield, VenetianMask, UserCheck, Heart, Dice6, Moon, Crosshair, User } from "lucide-react";
 import { ROLES } from "@shared/schema";
 import GameHeader from "@/components/ui/game-header";
+import { useGameData, usePlayerRole } from "@/hooks/use-game-data";
+import { FullPageLoader } from "@/components/ui/loading-spinner";
+import { FullPageError } from "@/components/ui/error-display";
 
 const roleIcons = {
   [ROLES.SHERIFF]: Shield,
@@ -46,15 +48,8 @@ export default function RoleAssignment() {
   
   const playerId = localStorage.getItem("playerId");
 
-  const { data: gameData } = useQuery({
-    queryKey: ["/api/games", code],
-    refetchInterval: 2000,
-  }) as { data: any };
-
-  const { data: roleData } = useQuery({
-    queryKey: ["/api/games", code, "player", playerId, "role"],
-    enabled: !!playerId,
-  }) as { data: any };
+  const { data: gameData, isLoading: gameLoading, error: gameError } = useGameData(code);
+  const { data: roleData, isLoading: roleLoading, error: roleError } = usePlayerRole(code, playerId);
 
   useEffect(() => {
     if (gameData && gameData.gameRoom.phase === "night") {
@@ -66,15 +61,16 @@ export default function RoleAssignment() {
     setLocation(`/night/${code}`);
   };
 
+  if (gameLoading || roleLoading) {
+    return <FullPageLoader message="Loading your role..." />;
+  }
+
+  if (gameError || roleError) {
+    return <FullPageError message="Failed to load game or role data" onRetry={() => window.location.reload()} />;
+  }
+
   if (!gameData || !roleData) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading your role...</p>
-        </div>
-      </div>
-    );
+    return <FullPageError message="Game or role not found" />;
   }
 
   const role = roleData.role;
