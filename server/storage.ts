@@ -64,7 +64,13 @@ export class MemStorage implements IStorage {
   async createGameRoom(room: InsertGameRoom): Promise<GameRoom> {
     const id = this.currentGameRoomId++;
     const gameRoom: GameRoom = {
-      ...room,
+      code: room.code,
+      hostId: room.hostId,
+      phase: room.phase || "lobby",
+      townName: room.townName || null,
+      townNamingMode: room.townNamingMode || "vote",
+      currentDay: room.currentDay || 0,
+      gameState: room.gameState || null,
       id,
       createdAt: new Date(),
     };
@@ -80,11 +86,11 @@ export class MemStorage implements IStorage {
     return Array.from(this.gameRooms.values()).find(room => room.code === code);
   }
 
-  async updateGameRoom(id: number, updates: Partial<GameRoom>): Promise<GameRoom | undefined> {
+  async updateGameRoom(id: number, updates: Partial<Omit<GameRoom, 'id' | 'createdAt'>>): Promise<GameRoom | undefined> {
     const existing = this.gameRooms.get(id);
     if (!existing) return undefined;
     
-    const updated = { ...existing, ...updates };
+    const updated: GameRoom = { ...existing, ...updates };
     this.gameRooms.set(id, updated);
     return updated;
   }
@@ -92,7 +98,13 @@ export class MemStorage implements IStorage {
   async addPlayer(player: InsertPlayer): Promise<Player> {
     const id = this.currentPlayerId++;
     const newPlayer: Player = {
-      ...player,
+      playerId: player.playerId,
+      name: player.name,
+      role: player.role || null,
+      gameId: player.gameId || null,
+      isAlive: player.isAlive || true,
+      isHost: player.isHost || false,
+      connectionStatus: player.connectionStatus || "connected",
       id,
       joinedAt: new Date(),
     };
@@ -130,7 +142,9 @@ export class MemStorage implements IStorage {
   async addTownNameSuggestion(suggestion: InsertTownNameSuggestion): Promise<TownNameSuggestion> {
     const id = this.currentSuggestionId++;
     const newSuggestion: TownNameSuggestion = {
-      ...suggestion,
+      playerId: suggestion.playerId,
+      suggestion: suggestion.suggestion,
+      gameId: suggestion.gameId || null,
       id,
       votes: 0,
       createdAt: new Date(),
@@ -157,7 +171,13 @@ export class MemStorage implements IStorage {
   async addGameAction(action: InsertGameAction): Promise<GameAction> {
     const id = this.currentActionId++;
     const newAction: GameAction = {
-      ...action,
+      playerId: action.playerId,
+      phase: action.phase,
+      day: action.day,
+      actionType: action.actionType,
+      data: action.data || null,
+      gameId: action.gameId || null,
+      targetId: action.targetId || null,
       id,
       createdAt: new Date(),
     };
