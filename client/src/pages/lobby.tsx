@@ -467,6 +467,20 @@ export default function Lobby() {
           </Card>
         )}
 
+        {/* Start Game Button - Show for joined players below town name */}
+        {gameData && (hasJoined || isHost) && (
+          <div className="mb-6">
+            <Button
+              onClick={handleStartGame}
+              disabled={startGameMutation.isPending || !gameData?.players || gameData.players.length < 1}
+              className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              {startGameMutation.isPending ? "Starting..." : "Start Game"}
+            </Button>
+          </div>
+        )}
+
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-2">Players</h2>
           <p className="text-gray-400 text-sm">
@@ -522,29 +536,17 @@ export default function Lobby() {
           </Card>
         )}
 
-        {/* Game Controls - Show for joined players */}
-        {gameData && (hasJoined || isHost) && (
+        {/* Debug Controls - Show for joined players */}
+        {gameData && (hasJoined || isHost) && config.enableTestPlayers && (
           <div className="space-y-4">
             {/* Add Test Players Button - Show only in debug mode */}
-            {config.enableTestPlayers && (
-              <Button
-                onClick={() => addTestPlayersMutation.mutate()}
-                disabled={addTestPlayersMutation.isPending}
-                variant="outline"
-                className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
-              >
-                {addTestPlayersMutation.isPending ? "Adding..." : "Add Test Players (Debug)"}
-              </Button>
-            )}
-
-            {/* Start Game Button - Show for everyone during development */}
             <Button
-              onClick={handleStartGame}
-              disabled={startGameMutation.isPending || !gameData?.players || gameData.players.length < 1}
-              className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
+              onClick={() => addTestPlayersMutation.mutate()}
+              disabled={addTestPlayersMutation.isPending}
+              variant="outline"
+              className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 font-medium py-3"
             >
-              <Play className="w-5 h-5 mr-2" />
-              {startGameMutation.isPending ? "Starting..." : "Start Game"}
+              {addTestPlayersMutation.isPending ? "Adding..." : "Add Test Players (Debug)"}
             </Button>
           </div>
         )}
