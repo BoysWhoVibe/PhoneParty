@@ -218,6 +218,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Set town naming mode (host or vote)
+  app.post("/api/games/:code/set-town-naming-mode", async (req, res) => {
+    try {
+      const { code } = req.params;
+      const { townNamingMode } = req.body;
+
+      if (!townNamingMode || !["host", "vote"].includes(townNamingMode)) {
+        return res.status(400).json({ message: "Town naming mode must be 'host' or 'vote'" });
+      }
+
+      const gameRoom = await storage.getGameRoomByCode(code);
+      if (!gameRoom || gameRoom.phase !== "lobby") {
+        return res.status(400).json({ message: "Can only change mode in lobby" });
+      }
+
+      // When switching to vote mode, clear any existing town name to allow voting
+      const updates: any = { townNamingMode };
+      if (townNamingMode === "vote" && gameRoom.townName) {
+        updates.townName = null;
+      }
+
+      await storage.updateGameRoom(gameRoom.id, updates);
+
+      res.json({ 
+        success: true, 
+        townNamingMode, 
+        townNameCleared: townNamingMode === "vote" && gameRoom.townName 
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update town naming mode" });
+    }
+  });
+
   // Submit town name suggestion
   app.post("/api/games/:code/town-name", async (req, res) => {
     try {

@@ -123,6 +123,29 @@ export default function Lobby() {
     }
   });
 
+  const saveTownNamingModeMutation = useMutation({
+    mutationFn: async (mode: string) => {
+      const response = await apiRequest("POST", `/api/games/${code}/set-town-naming-mode`, {
+        townNamingMode: mode
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/games", code] });
+      toast({
+        title: "Town Naming Mode Updated!",
+        description: `Mode changed to "${townNamingMode === 'host' ? 'Host chooses name' : 'Players vote on name'}"`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update town naming mode",
+        variant: "destructive"
+      });
+    }
+  });
+
   useEffect(() => {
     if (gameData?.players && playerId) {
       const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
@@ -186,6 +209,10 @@ export default function Lobby() {
       return;
     }
     setTownNameMutation.mutate(townNameInput);
+  };
+
+  const handleSaveTownNamingMode = () => {
+    saveTownNamingModeMutation.mutate(townNamingMode);
   };
 
   const handleStartGame = () => {
@@ -268,7 +295,7 @@ export default function Lobby() {
               <RadioGroup
                 value={townNamingMode}
                 onValueChange={setTownNamingMode}
-                className="space-y-3"
+                className="space-y-3 mb-4"
               >
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="host" id="host" />
@@ -276,9 +303,16 @@ export default function Lobby() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="vote" id="vote" />
-                  <Label htmlFor="vote" className="text-sm">Players vote on names</Label>
+                  <Label htmlFor="vote" className="text-sm">Players vote on name</Label>
                 </div>
               </RadioGroup>
+              <Button
+                onClick={handleSaveTownNamingMode}
+                disabled={saveTownNamingModeMutation.isPending}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              >
+                {saveTownNamingModeMutation.isPending ? "Saving..." : "Save Town Name Mode"}
+              </Button>
             </CardContent>
           </Card>
         )}
