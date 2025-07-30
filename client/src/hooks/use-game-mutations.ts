@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-
 export function useGameMutations() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -14,13 +13,17 @@ export function useGameMutations() {
       // First create the game room
       const createResponse = await apiRequest("POST", "/api/games");
       const gameData = await createResponse.json();
-      
+
       // Then immediately join it as the first player (making us the host)
-      const joinResponse = await apiRequest("POST", `/api/games/${gameData.gameRoom.code}/join`, {
-        name
-      });
+      const joinResponse = await apiRequest(
+        "POST",
+        `/api/games/${gameData.gameRoom.code}/join`,
+        {
+          name,
+        },
+      );
       const joinData = await joinResponse.json();
-      
+
       return { gameData, joinData };
     },
     onSuccess: ({ gameData, joinData }) => {
@@ -31,19 +34,25 @@ export function useGameMutations() {
       toast({
         title: "Error",
         description: "Failed to create game room",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const joinGameMutation = useMutation({
-    mutationFn: async ({ code, name, onNameError }: { 
-      code: string; 
-      name: string; 
+    mutationFn: async ({
+      code,
+      name,
+      onNameError,
+    }: {
+      code: string;
+      name: string;
       onNameError?: (error: string) => void;
     }) => {
       // Always join with a name now
-      const response = await apiRequest("POST", `/api/games/${code}/join`, { name });
+      const response = await apiRequest("POST", `/api/games/${code}/join`, {
+        name,
+      });
       return { data: await response.json(), onNameError };
     },
     onSuccess: ({ data }, variables) => {
@@ -57,28 +66,32 @@ export function useGameMutations() {
     },
     onError: (error: any, variables) => {
       // Check if this is a name-specific error and we have a callback
-      if (variables.onNameError && (error.message === "Name already taken" || error.message?.includes("Name"))) {
+      if (variables.onNameError && error.message) {
         variables.onNameError(error.message);
       } else {
         // Show general error in toast
         toast({
           title: "Error",
           description: error.message || "Failed to join game",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
-    }
+    },
   });
 
   const startGameMutation = useMutation({
-    mutationFn: async ({ code, hostId, townNamingMode }: { 
-      code: string; 
-      hostId: string; 
-      townNamingMode: string; 
+    mutationFn: async ({
+      code,
+      hostId,
+      townNamingMode,
+    }: {
+      code: string;
+      hostId: string;
+      townNamingMode: string;
     }) => {
       const response = await apiRequest("POST", `/api/games/${code}/start`, {
         hostId,
-        townNamingMode
+        townNamingMode,
       });
       return response.json();
     },
@@ -93,14 +106,17 @@ export function useGameMutations() {
       toast({
         title: "Error",
         description: "Failed to start game",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const addTestPlayersMutation = useMutation({
     mutationFn: async (code: string) => {
-      const response = await apiRequest("POST", `/api/games/${code}/add-test-players`);
+      const response = await apiRequest(
+        "POST",
+        `/api/games/${code}/add-test-players`,
+      );
       return response.json();
     },
     onSuccess: (data, code) => {
@@ -114,24 +130,36 @@ export function useGameMutations() {
       toast({
         title: "Error",
         description: "Failed to add test players",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const setTownNameMutation = useMutation({
-    mutationFn: async ({ code, townName }: { code: string; townName: string }) => {
-      const response = await apiRequest("POST", `/api/games/${code}/set-town-name`, {
-        townName
-      });
+    mutationFn: async ({
+      code,
+      townName,
+    }: {
+      code: string;
+      townName: string;
+    }) => {
+      const response = await apiRequest(
+        "POST",
+        `/api/games/${code}/set-town-name`,
+        {
+          townName,
+        },
+      );
       return response.json();
     },
     onSuccess: (data, variables) => {
       // Invalidate queries to get fresh data
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/games", variables.code] });
+        queryClient.invalidateQueries({
+          queryKey: ["/api/games", variables.code],
+        });
       }, 500);
-      
+
       toast({
         title: "Town Name Set!",
         description: `Town name changed to "${data.townName}"`,
@@ -141,9 +169,9 @@ export function useGameMutations() {
       toast({
         title: "Error",
         description: "Failed to set town name",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   return {
@@ -151,6 +179,6 @@ export function useGameMutations() {
     joinGame: joinGameMutation,
     startGame: startGameMutation,
     addTestPlayers: addTestPlayersMutation,
-    setTownName: setTownNameMutation
+    setTownName: setTownNameMutation,
   };
 }
