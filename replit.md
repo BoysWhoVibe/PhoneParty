@@ -223,6 +223,14 @@ UI/UX Standard: All text input fields across all game phases should support Ente
 - ✅ Town naming page: Town name suggestion input now accepts Enter key
 - ✅ Implemented proper validation and pending state checks for all Enter key handlers
 
+### July 30, 2025 - Required Name Entry for Game Joining: Complete
+- ✅ Modified home page join game flow to require name entry before joining
+- ✅ Added player name input field above room code input on home page
+- ✅ Join Game button now disabled until both name and valid room code are entered
+- ✅ Removed redundant name entry from lobby page (players join with names from home)
+- ✅ Maintained name uniqueness validation on both client and server sides
+- ✅ Improved user experience with clear validation messages for all input requirements
+
 ## Future Tasks & Reminders
 
 **SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**

@@ -20,7 +20,6 @@ export default function Lobby() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [playerName, setPlayerName] = useState("");
   const [selectedTownNamingMode, setSelectedTownNamingMode] = useState("host");
   const [hasJoined, setHasJoined] = useState(false);
   const [townNameInput, setTownNameInput] = useState("");
@@ -140,49 +139,7 @@ export default function Lobby() {
     }
   }, [gameData, code, setLocation, hasJoined]);
 
-  const handleJoinGame = () => {
-    if (!playerName.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter your name first",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (playerName.length > 15) {
-      toast({
-        title: "Name Too Long",
-        description: "Name must be 15 characters or less",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Check for name uniqueness in current game
-    const existingPlayer = gameData?.players?.find((p: any) => 
-      p.name.toLowerCase() === playerName.trim().toLowerCase()
-    );
-    
-    if (existingPlayer) {
-      toast({
-        title: "Name Already Taken",
-        description: "Please choose a different name",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    joinGame.mutate({ code: code!, name: playerName.trim() });
-    setHasJoined(true);
-  };
 
-  const handlePlayerNameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !joinGame.isPending && playerName.trim()) {
-      e.preventDefault();
-      handleJoinGame();
-    }
-  };
 
   const handleSetTownName = () => {
     if (!townNameInput || townNameInput.length > 30) {
@@ -434,45 +391,24 @@ export default function Lobby() {
           hostId={gameData?.gameRoom.hostId || ""}
         />
 
-        {/* Name Entry (for new players) or Game Started Message */}
-        {!hasJoined && (
+        {/* Game Status Message for visitors */}
+        {!hasJoined && gameData?.gameRoom?.phase !== "lobby" && (
           <Card className="bg-surface border-2 border-dashed border-gray-600 mb-6">
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center mx-auto mb-2">
                   <Crown className="w-6 h-6 text-gray-400" />
                 </div>
-                {gameData?.gameRoom?.phase !== "lobby" ? (
-                  <div className="mb-3">
-                    <p className="text-sm text-red-400 mb-1">🚫 Game Already Started</p>
-                    <p className="text-xs text-gray-400 mb-3">This game is in progress and no longer accepting new players</p>
-                    <Button
-                      onClick={() => setLocation("/")}
-                      className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2"
-                    >
-                      Return to Home
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-sm text-gray-400 mb-3">Enter your name to join</p>
-                    <Input
-                      type="text"
-                      placeholder="Your name (max 15 chars)"
-                      value={playerName}
-                      onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
-                      onKeyDown={handlePlayerNameKeyDown}
-                      className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary mb-3"
-                    />
-                    <Button
-                      onClick={handleJoinGame}
-                      disabled={joinGame.isPending || !playerName.trim()}
-                      className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {joinGame.isPending ? "Joining..." : "Join Game"}
-                    </Button>
-                  </>
-                )}
+                <div className="mb-3">
+                  <p className="text-sm text-red-400 mb-1">🚫 Game Already Started</p>
+                  <p className="text-xs text-gray-400 mb-3">This game is in progress and no longer accepting new players</p>
+                  <Button
+                    onClick={() => setLocation("/")}
+                    className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2"
+                  >
+                    Return to Home
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

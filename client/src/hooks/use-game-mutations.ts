@@ -37,39 +37,24 @@ export function useGameMutations() {
   });
 
   const joinGameMutation = useMutation({
-    mutationFn: async ({ code, name }: { code: string; name?: string }) => {
-      if (name) {
-        // Join with a name (from lobby page)
-        const response = await apiRequest("POST", `/api/games/${code}/join`, { name });
-        return response.json();
-      } else {
-        // Just check if game exists (from home page)
-        const response = await apiRequest("GET", `/api/games/${code}`);
-        return response.json();
-      }
+    mutationFn: async ({ code, name }: { code: string; name: string }) => {
+      // Always join with a name now
+      const response = await apiRequest("POST", `/api/games/${code}/join`, { name });
+      return response.json();
     },
     onSuccess: (data, variables) => {
-      if (variables.name) {
-        // Joining from lobby - store player ID and invalidate cache
-        localStorage.setItem("playerId", data.player.playerId);
-        queryClient.invalidateQueries({ queryKey: ["/api/games", variables.code] });
-        toast({
-          title: "Joined!",
-          description: "You have joined the game",
-        });
-      } else {
-        // Navigating from home - just go to lobby
-        setLocation(`/lobby/${data.gameRoom.code}`);
-      }
+      // Store player ID and navigate to lobby
+      localStorage.setItem("playerId", data.player.playerId);
+      setLocation(`/lobby/${variables.code}`);
+      toast({
+        title: "Joined!",
+        description: "You have joined the game",
+      });
     },
-    onError: (error: any, variables) => {
-      const description = variables.name 
-        ? error.message || "Failed to join game"
-        : "Game room not found";
-      
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description,
+        description: error.message || "Failed to join game",
         variant: "destructive"
       });
     }

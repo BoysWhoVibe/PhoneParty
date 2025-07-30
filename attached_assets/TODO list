@@ -49,6 +49,13 @@
 - Town naming page: Town name suggestion input
 - Proper validation and pending state handling implemented
 
+✅ **Required Name Entry for Game Joining (July 30, 2025)**
+- Home page now requires name entry before joining games
+- Added player name input field above room code input
+- Join Game button disabled until both name and room code entered
+- Removed redundant name entry from lobby page
+- Maintained name uniqueness validation on client and server
+
 ## User Preferences & Notes
 - Keep everything mobile-friendly
 - Maintain simple, everyday language in UI

@@ -11,6 +11,7 @@ export default function Home() {
   const { toast } = useToast();
   const [roomCode, setRoomCode] = useState("");
   const [hostName, setHostName] = useState("");
+  const [playerName, setPlayerName] = useState("");
   const { createGame, joinGame } = useGameMutations();
 
   const handleCreateGame = () => {
@@ -26,6 +27,24 @@ export default function Home() {
   };
 
   const handleJoinGame = () => {
+    if (!playerName.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please enter your name",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (playerName.length > 15) {
+      toast({
+        title: "Name Too Long",
+        description: "Name must be 15 characters or less",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (roomCode.length !== 4) {
       toast({
         title: "Invalid Code",
@@ -34,7 +53,8 @@ export default function Home() {
       });
       return;
     }
-    joinGame.mutate({ code: roomCode.toUpperCase() });
+    
+    joinGame.mutate({ code: roomCode.toUpperCase(), name: playerName.trim() });
   };
 
   const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,6 +70,13 @@ export default function Home() {
   };
 
   const handleRoomCodeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleJoinGame();
+    }
+  };
+
+  const handlePlayerNameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleJoinGame();
@@ -103,9 +130,17 @@ export default function Home() {
             <div className="text-center mb-4">
               <Users className="w-12 h-12 text-secondary mx-auto mb-2" />
               <h2 className="text-xl font-semibold">Join a Game</h2>
-              <p className="text-gray-400 text-sm">Enter a 4-letter room code</p>
+              <p className="text-gray-400 text-sm">Enter your name and room code</p>
             </div>
             <div className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Your name (max 15 chars)"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
+                onKeyDown={handlePlayerNameKeyDown}
+                className="w-full bg-gray-800 border-gray-600 text-center focus:border-secondary"
+              />
               <Input
                 type="text"
                 placeholder="ABCD"
@@ -116,8 +151,8 @@ export default function Home() {
               />
               <Button 
                 onClick={handleJoinGame}
-                disabled={joinGame.isPending}
-                className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3"
+                disabled={joinGame.isPending || !playerName.trim() || roomCode.length !== 4}
+                className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {joinGame.isPending ? "Joining..." : "Join Game"}
               </Button>
