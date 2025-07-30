@@ -378,7 +378,7 @@ export default function Lobby() {
         )}
 
         {/* Start Game Button - Show for joined players below town name */}
-        {gameData && (hasJoined || isHost) && (
+        {gameData && isHost && (
           <div className="mb-6">
             <Button
               onClick={handleStartGame}
