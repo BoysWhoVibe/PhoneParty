@@ -2,14 +2,17 @@ import {
   gameRooms, 
   players, 
   townNameSuggestions, 
+  townNameVotes,
   gameActions,
   type GameRoom, 
   type Player, 
   type TownNameSuggestion, 
+  type TownNameVote,
   type GameAction,
   type InsertGameRoom, 
   type InsertPlayer, 
   type InsertTownNameSuggestion, 
+  type InsertTownNameVote,
   type InsertGameAction,
   type GameState
 } from "@shared/schema";
@@ -34,6 +37,12 @@ export interface IStorage {
   getTownNameSuggestionsByGame(gameId: number): Promise<TownNameSuggestion[]>;
   updateTownNameSuggestion(id: number, updates: Partial<TownNameSuggestion>): Promise<TownNameSuggestion | undefined>;
   
+  // Town name voting operations
+  addTownNameVote(vote: InsertTownNameVote): Promise<TownNameVote>;
+  getTownNameVotesByGame(gameId: number): Promise<TownNameVote[]>;
+  getTownNameVoteByPlayerAndGame(gameId: number, playerId: string): Promise<TownNameVote | undefined>;
+  removeTownNameVote(id: number): Promise<boolean>;
+  
   // Game action operations
   addGameAction(action: InsertGameAction): Promise<GameAction>;
   getGameActionsByGameAndPhase(gameId: number, phase: string, day: number): Promise<GameAction[]>;
@@ -44,20 +53,24 @@ export class MemStorage implements IStorage {
   private gameRooms: Map<number, GameRoom>;
   private players: Map<number, Player>;
   private townNameSuggestions: Map<number, TownNameSuggestion>;
+  private townNameVotes: Map<number, TownNameVote>;
   private gameActions: Map<number, GameAction>;
   private currentGameRoomId: number;
   private currentPlayerId: number;
   private currentSuggestionId: number;
+  private currentVoteId: number;
   private currentActionId: number;
 
   constructor() {
     this.gameRooms = new Map();
     this.players = new Map();
     this.townNameSuggestions = new Map();
+    this.townNameVotes = new Map();
     this.gameActions = new Map();
     this.currentGameRoomId = 1;
     this.currentPlayerId = 1;
     this.currentSuggestionId = 1;
+    this.currentVoteId = 1;
     this.currentActionId = 1;
   }
 
@@ -75,11 +88,8 @@ export class MemStorage implements IStorage {
         nightActions: {},
         dayVotes: {},
         phaseStartTime: Date.now(),
-        phaseDuration: 0,
-        nominatedPlayer: undefined as string | undefined,
-        winners: undefined as string[] | undefined,
-        gameEndReason: undefined as string | undefined
-      } satisfies GameState,
+        phaseDuration: 0
+      },
       id,
       createdAt: new Date(),
     };
@@ -175,6 +185,35 @@ export class MemStorage implements IStorage {
     const updated = { ...existing, ...updates };
     this.townNameSuggestions.set(id, updated);
     return updated;
+  }
+
+  async addTownNameVote(vote: InsertTownNameVote): Promise<TownNameVote> {
+    const id = this.currentVoteId++;
+    const newVote: TownNameVote = {
+      gameId: vote.gameId || null,
+      playerId: vote.playerId,
+      suggestionId: vote.suggestionId || null,
+      id,
+      createdAt: new Date(),
+    };
+    this.townNameVotes.set(id, newVote);
+    return newVote;
+  }
+
+  async getTownNameVotesByGame(gameId: number): Promise<TownNameVote[]> {
+    return Array.from(this.townNameVotes.values()).filter(
+      vote => vote.gameId === gameId
+    );
+  }
+
+  async getTownNameVoteByPlayerAndGame(gameId: number, playerId: string): Promise<TownNameVote | undefined> {
+    return Array.from(this.townNameVotes.values()).find(
+      vote => vote.gameId === gameId && vote.playerId === playerId
+    );
+  }
+
+  async removeTownNameVote(id: number): Promise<boolean> {
+    return this.townNameVotes.delete(id);
   }
 
   async addGameAction(action: InsertGameAction): Promise<GameAction> {

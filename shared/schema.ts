@@ -35,6 +35,14 @@ export const townNameSuggestions = pgTable("town_name_suggestions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const townNameVotes = pgTable("town_name_votes", {
+  id: serial("id").primaryKey(),
+  gameId: integer("game_id").references(() => gameRooms.id),
+  playerId: text("player_id").notNull(),
+  suggestionId: integer("suggestion_id").references(() => townNameSuggestions.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const gameActions = pgTable("game_actions", {
   id: serial("id").primaryKey(),
   gameId: integer("game_id").references(() => gameRooms.id),
@@ -75,6 +83,11 @@ export const insertTownNameSuggestionSchema = createInsertSchema(townNameSuggest
   votes: true,
 });
 
+export const insertTownNameVoteSchema = createInsertSchema(townNameVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertGameActionSchema = createInsertSchema(gameActions).omit({
   id: true,
   createdAt: true,
@@ -83,11 +96,13 @@ export const insertGameActionSchema = createInsertSchema(gameActions).omit({
 export type InsertGameRoom = z.infer<typeof insertGameRoomSchema>;
 export type InsertPlayer = z.infer<typeof insertPlayerSchema>;
 export type InsertTownNameSuggestion = z.infer<typeof insertTownNameSuggestionSchema>;
+export type InsertTownNameVote = z.infer<typeof insertTownNameVoteSchema>;
 export type InsertGameAction = z.infer<typeof insertGameActionSchema>;
 
 export type GameRoom = typeof gameRooms.$inferSelect;
 export type Player = typeof players.$inferSelect;
 export type TownNameSuggestion = typeof townNameSuggestions.$inferSelect;
+export type TownNameVote = typeof townNameVotes.$inferSelect;
 export type GameAction = typeof gameActions.$inferSelect;
 
 // Role definitions

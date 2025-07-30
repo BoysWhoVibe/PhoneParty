@@ -72,6 +72,63 @@ export function generateTestPlayers(): Array<{name: string, playerId: string}> {
   }));
 }
 
+// Mario Party-style tie-breaker: randomly select among tied options
+export function resolveTie<T>(tiedItems: T[]): T {
+  const randomIndex = Math.floor(Math.random() * tiedItems.length);
+  return tiedItems[randomIndex];
+}
+
+// Finalize town name voting with tie-breaker logic
+export async function finalizeTownName(gameRoom: any, suggestions: any[]) {
+  const { storage } = await import("./storage");
+  
+  try {
+    // Refresh suggestions to get latest vote counts
+    const updatedSuggestions = await storage.getTownNameSuggestionsByGame(gameRoom.id);
+    
+    if (updatedSuggestions.length === 0) {
+      // No suggestions, use default name
+      await storage.updateGameRoom(gameRoom.id, {
+        townName: "Unnamed Town",
+        phase: "role_assignment",
+        gameState: {
+          ...gameRoom.gameState,
+          phaseStartTime: Date.now(),
+          phaseDuration: 300000 // 5 minutes for role assignment
+        }
+      });
+      return;
+    }
+
+    // Find the highest vote count
+    const maxVotes = Math.max(...updatedSuggestions.map(s => s.votes || 0));
+    
+    // Get all suggestions with the highest vote count
+    const topSuggestions = updatedSuggestions.filter(s => (s.votes || 0) === maxVotes);
+    
+    // Use Mario Party-style tie-breaker if multiple winners
+    const winningName = topSuggestions.length > 1 
+      ? resolveTie(topSuggestions).suggestion
+      : topSuggestions[0].suggestion;
+
+    // Update game room with winning name and advance to role assignment
+    await storage.updateGameRoom(gameRoom.id, {
+      townName: winningName,
+      phase: "role_assignment", 
+      gameState: {
+        ...gameRoom.gameState,
+        phaseStartTime: Date.now(),
+        phaseDuration: 300000 // 5 minutes for role assignment
+      }
+    });
+    
+    console.log(`Town name finalized: "${winningName}" (${maxVotes} votes, ${topSuggestions.length > 1 ? 'tie-breaker applied' : 'clear winner'})`);
+  } catch (error) {
+    console.error("Error finalizing town name:", error);
+    throw error;
+  }
+}
+
 // Check win conditions for the game
 export function checkWinConditions(players: any[], gameState: any): {winner?: string, reason?: string} {
   const livingPlayers = players.filter(p => !p.isDead);

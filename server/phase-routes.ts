@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { storage } from "./storage";
 import { insertTownNameSuggestionSchema } from "@shared/schema";
-import { assignRoles, checkWinConditions } from "./game-logic";
+import { assignRoles, checkWinConditions, finalizeTownName } from "./game-logic";
 
 export function registerPhaseRoutes(app: Express) {
   // Start the game
@@ -115,6 +115,22 @@ export function registerPhaseRoutes(app: Express) {
         gameId: gameRoom.id
       });
 
+      // Check if all players have submitted suggestions
+      const players = await storage.getPlayersByGame(gameRoom.id);
+      const suggestions = await storage.getTownNameSuggestionsByGame(gameRoom.id);
+      
+      if (suggestions.length >= players.length) {
+        // All players submitted, transition to voting phase
+        await storage.updateGameRoom(gameRoom.id, {
+          phase: "town_voting",
+          gameState: {
+            ...gameRoom.gameState!,
+            phaseStartTime: Date.now(),
+            phaseDuration: 30000 // 30 seconds for voting
+          }
+        });
+      }
+
       res.json({ suggestion });
     } catch (error) {
       res.status(500).json({ message: "Failed to submit town name suggestion" });
@@ -127,15 +143,56 @@ export function registerPhaseRoutes(app: Express) {
       const { code } = req.params;
       const { suggestionId, playerId } = req.body;
       
+      if (!suggestionId || !playerId) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
       const gameRoom = await storage.getGameRoomByCode(code);
       if (!gameRoom) {
         return res.status(404).json({ message: "Game room not found" });
       }
 
-      // Implementation would depend on how votes are stored
-      // This is a simplified version
+      if (gameRoom.phase !== "town_voting") {
+        return res.status(400).json({ message: "Game is not in town voting phase" });
+      }
+
+      // Check if player already voted
+      const existingVote = await storage.getTownNameVoteByPlayerAndGame(gameRoom.id, playerId);
+      if (existingVote) {
+        return res.status(400).json({ message: "Player has already voted" });
+      }
+
+      // Verify suggestion exists
+      const suggestions = await storage.getTownNameSuggestionsByGame(gameRoom.id);
+      const targetSuggestion = suggestions.find(s => s.id === suggestionId);
+      if (!targetSuggestion) {
+        return res.status(404).json({ message: "Suggestion not found" });
+      }
+
+      // Add the vote
+      await storage.addTownNameVote({
+        gameId: gameRoom.id,
+        playerId,
+        suggestionId
+      });
+
+      // Update vote count on suggestion
+      await storage.updateTownNameSuggestion(suggestionId, {
+        votes: (targetSuggestion.votes || 0) + 1
+      });
+
+      // Check if all players have voted
+      const players = await storage.getPlayersByGame(gameRoom.id);
+      const votes = await storage.getTownNameVotesByGame(gameRoom.id);
+      
+      if (votes.length >= players.length) {
+        // All players voted, determine winner and proceed to role assignment
+        await finalizeTownName(gameRoom, suggestions);
+      }
+
       res.json({ success: true });
     } catch (error) {
+      console.error("Error voting on town name:", error);
       res.status(500).json({ message: "Failed to vote on town name" });
     }
   });
