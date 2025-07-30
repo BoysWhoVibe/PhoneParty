@@ -18,71 +18,74 @@ export default function Home() {
 
   const handleCreateGame = () => {
     setHostNameError("");
-    
+
     if (!hostName.trim()) {
       setHostNameError("Please enter a host name");
       return;
     }
-    
+
     if (hostName.length > 15) {
       setHostNameError("Name must be 15 characters or less");
       return;
     }
-    
+
     createGame.mutate(hostName);
   };
 
   const handleJoinGame = () => {
     // Clear previous name error
     setNameError("");
-    
+
     if (!playerName.trim()) {
       setNameError("Please enter your name");
       return;
     }
-    
+
     if (playerName.length > 15) {
       setNameError("Name must be 15 characters or less");
       return;
     }
-    
+
     if (roomCode.length !== 4) {
       toast({
         title: "Invalid Code",
         description: "Room code must be 4 letters",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
-    
-    joinGame.mutate({ 
-      code: roomCode.toUpperCase(), 
+
+    joinGame.mutate({
+      code: roomCode.toUpperCase(),
       name: playerName.trim(),
-      onNameError: setNameError
+      onNameError: setNameError,
     });
   };
 
   const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4);
+    const value = e.target.value
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, 4);
     setRoomCode(value);
   };
 
   const handleHostNameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleCreateGame();
     }
   };
 
   const handleRoomCodeKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleJoinGame();
     }
   };
 
   const handlePlayerNameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleJoinGame();
     }
@@ -91,7 +94,7 @@ export default function Home() {
   const handlePlayerNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.slice(0, 15);
     setPlayerName(value);
-    
+
     // Clear error when user starts typing
     if (nameError) {
       setNameError("");
@@ -101,7 +104,7 @@ export default function Home() {
   const handleHostNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.slice(0, 15);
     setHostName(value);
-    
+
     // Clear error when user starts typing
     if (hostNameError) {
       setHostNameError("");
@@ -127,7 +130,9 @@ export default function Home() {
             <div className="text-center mb-4">
               <PlusCircle className="w-12 h-12 text-primary mx-auto mb-2" />
               <h2 className="text-xl font-semibold">Host a Game</h2>
-              <p className="text-gray-400 text-sm">Enter your name to create a room</p>
+              <p className="text-gray-400 text-sm">
+                Enter your name to create a room
+              </p>
             </div>
             <div className="space-y-4">
               <div>
@@ -142,12 +147,14 @@ export default function Home() {
                   }`}
                 />
                 {hostNameError && (
-                  <p className="text-red-400 text-sm mt-1 text-center">{hostNameError}</p>
+                  <p className="text-red-400 text-sm mt-1 text-center">
+                    {hostNameError}
+                  </p>
                 )}
               </div>
-              <Button 
+              <Button
                 onClick={handleCreateGame}
-                disabled={createGame.isPending}
+                disabled={createGame.isPending || !hostName.trim()}
                 className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3"
               >
                 {createGame.isPending ? "Creating..." : "Create Game Room"}
@@ -162,9 +169,19 @@ export default function Home() {
             <div className="text-center mb-4">
               <Users className="w-12 h-12 text-secondary mx-auto mb-2" />
               <h2 className="text-xl font-semibold">Join a Game</h2>
-              <p className="text-gray-400 text-sm">Enter your name and room code</p>
+              <p className="text-gray-400 text-sm">
+                Enter your name and room code
+              </p>
             </div>
             <div className="space-y-4">
+              <Input
+                type="text"
+                placeholder="ABCD"
+                value={roomCode}
+                onChange={handleRoomCodeChange}
+                onKeyDown={handleRoomCodeKeyDown}
+                className="text-center text-2xl font-mono tracking-widest uppercase bg-gray-800 border-gray-600 focus:border-secondary"
+              />
               <div>
                 <Input
                   type="text"
@@ -177,20 +194,18 @@ export default function Home() {
                   }`}
                 />
                 {nameError && (
-                  <p className="text-red-400 text-sm mt-1 text-center">{nameError}</p>
+                  <p className="text-red-400 text-sm mt-1 text-center">
+                    {nameError}
+                  </p>
                 )}
               </div>
-              <Input
-                type="text"
-                placeholder="ABCD"
-                value={roomCode}
-                onChange={handleRoomCodeChange}
-                onKeyDown={handleRoomCodeKeyDown}
-                className="text-center text-2xl font-mono tracking-widest uppercase bg-gray-800 border-gray-600 focus:border-secondary"
-              />
-              <Button 
+              <Button
                 onClick={handleJoinGame}
-                disabled={joinGame.isPending || !playerName.trim() || roomCode.length !== 4}
+                disabled={
+                  joinGame.isPending ||
+                  !playerName.trim() ||
+                  roomCode.length !== 4
+                }
                 className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {joinGame.isPending ? "Joining..." : "Join Game"}
@@ -201,7 +216,10 @@ export default function Home() {
 
         {/* Game Rules Link */}
         <div className="text-center">
-          <Button variant="link" className="text-gray-400 hover:text-white text-sm">
+          <Button
+            variant="link"
+            className="text-gray-400 hover:text-white text-sm"
+          >
             <Info className="w-4 h-4 mr-1" />
             How to Play
           </Button>
