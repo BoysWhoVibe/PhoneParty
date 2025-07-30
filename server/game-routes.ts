@@ -57,8 +57,8 @@ export function registerGameRoutes(app: Express) {
 
       const existingPlayers = await storage.getPlayersByGame(gameRoom.id);
       
-      // Check if name is already taken
-      if (existingPlayers.some(p => p.name === name)) {
+      // Check if name is already taken (case-insensitive)
+      if (existingPlayers.some(p => p.name.toLowerCase() === name.toLowerCase())) {
         return res.status(400).json({ message: "Name already taken" });
       }
 
@@ -107,10 +107,10 @@ export function registerGameRoutes(app: Express) {
       const existingPlayers = await storage.getPlayersByGame(gameRoom.id);
       const testPlayers = generateTestPlayers();
       
-      // Add test players that don't conflict with existing names
+      // Add test players that don't conflict with existing names (case-insensitive)
       const addedPlayers = [];
       for (const testPlayer of testPlayers) {
-        if (!existingPlayers.some(p => p.name === testPlayer.name)) {
+        if (!existingPlayers.some(p => p.name.toLowerCase() === testPlayer.name.toLowerCase())) {
           const player = await storage.addPlayer({
             playerId: testPlayer.playerId,
             name: testPlayer.name,

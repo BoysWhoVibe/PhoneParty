@@ -63,6 +63,12 @@
 - Input fields highlight red when errors occur
 - Errors clear when user starts typing corrections
 
+✅ **Case-Insensitive Name Uniqueness (July 30, 2025)**
+- Name uniqueness validation now case-insensitive
+- "Sean" and "sean" treated as duplicate names
+- Updated player join validation and test player generation
+- Consistent checking across all name conflict detection
+
 ## User Preferences & Notes
 - Keep everything mobile-friendly
 - Maintain simple, everyday language in UI

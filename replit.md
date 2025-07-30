@@ -239,6 +239,12 @@ UI/UX Standard: All text input fields across all game phases should support Ente
 - ✅ Input fields highlight in red when errors occur
 - ✅ Errors clear automatically when user starts typing corrections
 
+### July 30, 2025 - Case-Insensitive Name Uniqueness: Complete
+- ✅ Modified server-side name uniqueness validation to be case-insensitive
+- ✅ Names like "Sean" and "sean" are now considered duplicates
+- ✅ Updated both player join validation and test player generation
+- ✅ Consistent case-insensitive checking across all name conflict detection
+
 ## Future Tasks & Reminders
 
 **SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**
