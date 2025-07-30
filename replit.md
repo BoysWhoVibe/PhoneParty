@@ -9,7 +9,7 @@ This is a self-hosted online implementation of the party game Mafia, built with 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Development approach: Make the website as personal as possible - only implement features specifically requested by the user, avoid using external ideas or implementations found online.
+Development approach: Make the website as personal as possible - gameplay mechanics (role assignment, voting, etc.) should only come from user's ideas and the attached game specification document. Technical implementation choices remain at developer's discretion.
 
 ## System Architecture
 
