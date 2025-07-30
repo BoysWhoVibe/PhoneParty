@@ -277,13 +277,18 @@ UI/UX Standard: All text input fields across all game phases should support Ente
    - Yes/no voting on execution
    - Majority required logic
 
+#### UI/UX Improvements (Medium Priority)
+5. Lobby waiting state indicator
+   - Display "waiting for host to start game" message for non-host players
+   - Clear visual indication when waiting for host action
+
 #### Polish & Enhancement Features (Lower Priority)
-5. Audio cues and sound effects
+6. Audio cues and sound effects
    - "Town, go to sleep" voice lines
    - State transition sounds
    - Text-to-speech integration
 
-6. Animations and visual polish
+7. Animations and visual polish
    - Mario Party-style tie-breaker wheel
    - Smooth transitions between phases
    - Enhanced mobile UI interactions
