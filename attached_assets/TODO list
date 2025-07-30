@@ -54,3 +54,4 @@
 - Maintain simple, everyday language in UI
 - Focus on reliable functionality over flashy features
 - Role assignment system needs flexibility: custom setups by player count + host-selectable role distributions
+- UI/UX Standard: All text input fields across all game phases should support Enter key submission
