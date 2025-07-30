@@ -141,20 +141,44 @@ export default function Lobby() {
   }, [gameData, code, setLocation, hasJoined]);
 
   const handleJoinGame = () => {
-    if (!playerName || playerName.length > 15) {
+    if (!playerName.trim()) {
       toast({
-        title: "Invalid Name",
-        description: "Name must be 1-15 characters",
+        title: "Name Required",
+        description: "Please enter your name first",
         variant: "destructive"
       });
       return;
     }
-    joinGame.mutate({ code: code!, name: playerName });
+    
+    if (playerName.length > 15) {
+      toast({
+        title: "Name Too Long",
+        description: "Name must be 15 characters or less",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Check for name uniqueness in current game
+    const existingPlayer = gameData?.players?.find((p: any) => 
+      p.name.toLowerCase() === playerName.trim().toLowerCase()
+    );
+    
+    if (existingPlayer) {
+      toast({
+        title: "Name Already Taken",
+        description: "Please choose a different name",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    joinGame.mutate({ code: code!, name: playerName.trim() });
     setHasJoined(true);
   };
 
   const handlePlayerNameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !joinGame.isPending) {
+    if (e.key === 'Enter' && !joinGame.isPending && playerName.trim()) {
       e.preventDefault();
       handleJoinGame();
     }
@@ -442,8 +466,8 @@ export default function Lobby() {
                     />
                     <Button
                       onClick={handleJoinGame}
-                      disabled={joinGame.isPending}
-                      className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2"
+                      disabled={joinGame.isPending || !playerName.trim()}
+                      className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {joinGame.isPending ? "Joining..." : "Join Game"}
                     </Button>
