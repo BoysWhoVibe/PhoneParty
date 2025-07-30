@@ -231,6 +231,14 @@ UI/UX Standard: All text input fields across all game phases should support Ente
 - ✅ Maintained name uniqueness validation on both client and server sides
 - ✅ Improved user experience with clear validation messages for all input requirements
 
+### July 30, 2025 - Inline Error Message Display: Complete
+- ✅ Added inline error message display under name input fields
+- ✅ Home page host name input shows validation errors below field
+- ✅ Home page player name input shows validation errors below field
+- ✅ Error messages include: empty name, name too long, name already taken
+- ✅ Input fields highlight in red when errors occur
+- ✅ Errors clear automatically when user starts typing corrections
+
 ## Future Tasks & Reminders
 
 **SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**

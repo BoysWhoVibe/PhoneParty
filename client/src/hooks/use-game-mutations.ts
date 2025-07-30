@@ -37,12 +37,16 @@ export function useGameMutations() {
   });
 
   const joinGameMutation = useMutation({
-    mutationFn: async ({ code, name }: { code: string; name: string }) => {
+    mutationFn: async ({ code, name, onNameError }: { 
+      code: string; 
+      name: string; 
+      onNameError?: (error: string) => void;
+    }) => {
       // Always join with a name now
       const response = await apiRequest("POST", `/api/games/${code}/join`, { name });
-      return response.json();
+      return { data: await response.json(), onNameError };
     },
-    onSuccess: (data, variables) => {
+    onSuccess: ({ data }, variables) => {
       // Store player ID and navigate to lobby
       localStorage.setItem("playerId", data.player.playerId);
       setLocation(`/lobby/${variables.code}`);
@@ -51,12 +55,18 @@ export function useGameMutations() {
         description: "You have joined the game",
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to join game",
-        variant: "destructive"
-      });
+    onError: (error: any, variables) => {
+      // Check if this is a name-specific error and we have a callback
+      if (variables.onNameError && (error.message === "Name already taken" || error.message?.includes("Name"))) {
+        variables.onNameError(error.message);
+      } else {
+        // Show general error in toast
+        toast({
+          title: "Error",
+          description: error.message || "Failed to join game",
+          variant: "destructive"
+        });
+      }
     }
   });
 

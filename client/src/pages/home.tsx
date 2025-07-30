@@ -12,36 +12,37 @@ export default function Home() {
   const [roomCode, setRoomCode] = useState("");
   const [hostName, setHostName] = useState("");
   const [playerName, setPlayerName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [hostNameError, setHostNameError] = useState("");
   const { createGame, joinGame } = useGameMutations();
 
   const handleCreateGame = () => {
-    if (!hostName || hostName.length > 15) {
-      toast({
-        title: "Invalid Name",
-        description: "Name must be 1-15 characters",
-        variant: "destructive"
-      });
+    setHostNameError("");
+    
+    if (!hostName.trim()) {
+      setHostNameError("Please enter a host name");
       return;
     }
+    
+    if (hostName.length > 15) {
+      setHostNameError("Name must be 15 characters or less");
+      return;
+    }
+    
     createGame.mutate(hostName);
   };
 
   const handleJoinGame = () => {
+    // Clear previous name error
+    setNameError("");
+    
     if (!playerName.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter your name",
-        variant: "destructive"
-      });
+      setNameError("Please enter your name");
       return;
     }
     
     if (playerName.length > 15) {
-      toast({
-        title: "Name Too Long",
-        description: "Name must be 15 characters or less",
-        variant: "destructive"
-      });
+      setNameError("Name must be 15 characters or less");
       return;
     }
     
@@ -54,7 +55,11 @@ export default function Home() {
       return;
     }
     
-    joinGame.mutate({ code: roomCode.toUpperCase(), name: playerName.trim() });
+    joinGame.mutate({ 
+      code: roomCode.toUpperCase(), 
+      name: playerName.trim(),
+      onNameError: setNameError
+    });
   };
 
   const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +88,26 @@ export default function Home() {
     }
   };
 
+  const handlePlayerNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.slice(0, 15);
+    setPlayerName(value);
+    
+    // Clear error when user starts typing
+    if (nameError) {
+      setNameError("");
+    }
+  };
+
+  const handleHostNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.slice(0, 15);
+    setHostName(value);
+    
+    // Clear error when user starts typing
+    if (hostNameError) {
+      setHostNameError("");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-gray-900 to-gray-800 px-4 py-8">
       {/* Header */}
@@ -105,14 +130,21 @@ export default function Home() {
               <p className="text-gray-400 text-sm">Enter your name to create a room</p>
             </div>
             <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Your name (max 15 chars)"
-                value={hostName}
-                onChange={(e) => setHostName(e.target.value.slice(0, 15))}
-                onKeyDown={handleHostNameKeyDown}
-                className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary"
-              />
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Your name (max 15 chars)"
+                  value={hostName}
+                  onChange={handleHostNameChange}
+                  onKeyDown={handleHostNameKeyDown}
+                  className={`w-full bg-gray-800 border-gray-600 text-center focus:border-primary ${
+                    hostNameError ? "border-red-500 focus:border-red-500" : ""
+                  }`}
+                />
+                {hostNameError && (
+                  <p className="text-red-400 text-sm mt-1 text-center">{hostNameError}</p>
+                )}
+              </div>
               <Button 
                 onClick={handleCreateGame}
                 disabled={createGame.isPending}
@@ -133,14 +165,21 @@ export default function Home() {
               <p className="text-gray-400 text-sm">Enter your name and room code</p>
             </div>
             <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Your name (max 15 chars)"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
-                onKeyDown={handlePlayerNameKeyDown}
-                className="w-full bg-gray-800 border-gray-600 text-center focus:border-secondary"
-              />
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Your name (max 15 chars)"
+                  value={playerName}
+                  onChange={handlePlayerNameChange}
+                  onKeyDown={handlePlayerNameKeyDown}
+                  className={`w-full bg-gray-800 border-gray-600 text-center focus:border-secondary ${
+                    nameError ? "border-red-500 focus:border-red-500" : ""
+                  }`}
+                />
+                {nameError && (
+                  <p className="text-red-400 text-sm mt-1 text-center">{nameError}</p>
+                )}
+              </div>
               <Input
                 type="text"
                 placeholder="ABCD"

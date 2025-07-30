@@ -56,6 +56,13 @@
 - Removed redundant name entry from lobby page
 - Maintained name uniqueness validation on client and server
 
+✅ **Inline Error Message Display (July 30, 2025)**
+- Added error message display under name input fields
+- Host name and player name inputs show validation errors below field
+- Includes empty name, name too long, and name already taken errors
+- Input fields highlight red when errors occur
+- Errors clear when user starts typing corrections
+
 ## User Preferences & Notes
 - Keep everything mobile-friendly
 - Maintain simple, everyday language in UI
