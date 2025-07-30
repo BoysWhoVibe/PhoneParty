@@ -215,6 +215,13 @@ Development approach: Make the website as personal as possible - gameplay mechan
 - ✅ Verified all 16 test players are generated and added correctly to fresh game rooms
 - ✅ Confirmed duplicate prevention logic works properly (prevents re-adding existing players)
 
+### July 30, 2025 - Universal Enter Key Support: Complete
+- ✅ Added Enter key support to all text input fields across the application
+- ✅ Home page: Host name and room code inputs now accept Enter key
+- ✅ Lobby page: Player name input now accepts Enter key for joining games
+- ✅ Town naming page: Town name suggestion input now accepts Enter key
+- ✅ Implemented proper validation and pending state checks for all Enter key handlers
+
 ## Future Tasks & Reminders
 
 **SYNC PROTOCOL: When updating TODO items, ALWAYS update BOTH files in the same action:**

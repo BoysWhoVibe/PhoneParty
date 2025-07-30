@@ -78,6 +78,13 @@ export default function TownNaming() {
     submitNameMutation.mutate(townName.trim());
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !submitNameMutation.isPending) {
+      e.preventDefault();
+      handleSubmitName();
+    }
+  };
+
   const handleTimeUp = () => {
     // Automatically progress to voting phase when time runs out
     if (gameData) {
@@ -147,6 +154,7 @@ export default function TownNaming() {
                   placeholder="Enter a creative town name..."
                   value={townName}
                   onChange={(e) => setTownName(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className="w-full bg-gray-800 border-gray-600 focus:border-primary"
                 />
                 <Button

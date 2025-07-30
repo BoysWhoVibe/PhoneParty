@@ -153,6 +153,13 @@ export default function Lobby() {
     setHasJoined(true);
   };
 
+  const handlePlayerNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !joinGame.isPending) {
+      e.preventDefault();
+      handleJoinGame();
+    }
+  };
+
   const handleSetTownName = () => {
     if (!townNameInput || townNameInput.length > 30) {
       toast({
@@ -430,6 +437,7 @@ export default function Lobby() {
                       placeholder="Your name (max 15 chars)"
                       value={playerName}
                       onChange={(e) => setPlayerName(e.target.value.slice(0, 15))}
+                      onKeyDown={handlePlayerNameKeyDown}
                       className="w-full bg-gray-800 border-gray-600 text-center focus:border-primary mb-3"
                     />
                     <Button

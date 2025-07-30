@@ -41,6 +41,14 @@
    - Smooth transitions between phases
    - Enhanced mobile UI interactions
 
+## Recent Completed Features
+✅ **Universal Enter Key Support (July 30, 2025)**
+- All text inputs now accept Enter key in addition to button clicks
+- Home page: Host name and room code inputs
+- Lobby page: Player name input for joining games  
+- Town naming page: Town name suggestion input
+- Proper validation and pending state handling implemented
+
 ## User Preferences & Notes
 - Keep everything mobile-friendly
 - Maintain simple, everyday language in UI
