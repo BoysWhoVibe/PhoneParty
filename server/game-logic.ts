@@ -84,12 +84,30 @@ export async function finalizeTownName(gameRoom: any, suggestions: any[]) {
     const updatedSuggestions = await storage.getTownNameSuggestionsByGame(gameRoom.id);
     
     if (updatedSuggestions.length === 0) {
-      // No suggestions, use default name
+      // No suggestions, use default name and assign roles
+      const players = await storage.getPlayersByGame(gameRoom.id);
+      const roles = assignRoles(players.length);
+      const playerRoles: { [playerId: string]: string } = {};
+      
+      // Update each player with their role and reset acknowledgment status
+      for (let i = 0; i < players.length; i++) {
+        const player = players[i];
+        const assignedRole = roles[i];
+        playerRoles[player.playerId] = assignedRole;
+        
+        // Reset role acknowledgment status for all players
+        await storage.updatePlayer(player.id, {
+          role: assignedRole,
+          roleAcknowledged: false
+        });
+      }
+      
       await storage.updateGameRoom(gameRoom.id, {
         townName: "Unnamed Town",
         phase: "role_assignment",
         gameState: {
           ...gameRoom.gameState,
+          roles: playerRoles,
           phaseStartTime: Date.now(),
           phaseDuration: 300000 // 5 minutes for role assignment
         }
@@ -108,12 +126,31 @@ export async function finalizeTownName(gameRoom: any, suggestions: any[]) {
       ? resolveTie(topSuggestions).suggestion
       : topSuggestions[0].suggestion;
 
+    // Get players and assign roles when transitioning to role assignment
+    const players = await storage.getPlayersByGame(gameRoom.id);
+    const roles = assignRoles(players.length);
+    const playerRoles: { [playerId: string]: string } = {};
+    
+    // Update each player with their role and reset acknowledgment status
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
+      const assignedRole = roles[i];
+      playerRoles[player.playerId] = assignedRole;
+      
+      // Reset role acknowledgment status for all players
+      await storage.updatePlayer(player.id, {
+        role: assignedRole,
+        roleAcknowledged: false
+      });
+    }
+
     // Update game room with winning name and advance to role assignment
     await storage.updateGameRoom(gameRoom.id, {
       townName: winningName,
       phase: "role_assignment", 
       gameState: {
         ...gameRoom.gameState,
+        roles: playerRoles,
         phaseStartTime: Date.now(),
         phaseDuration: 300000 // 5 minutes for role assignment
       }

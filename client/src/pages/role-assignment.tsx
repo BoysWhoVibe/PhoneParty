@@ -93,21 +93,6 @@ export default function RoleAssignment() {
   
   // Check if all players have acknowledged their roles
   const allPlayersAcknowledged = gameData.players.every((p: any) => p.roleAcknowledged);
-  
-  // Debug info - temporary
-  console.log("Role Assignment Debug:", {
-    hasAcknowledged,
-    isHost,
-    allPlayersAcknowledged,
-    currentPlayer: currentPlayer ? {
-      name: currentPlayer.name,
-      playerId: currentPlayer.playerId,
-      isHost: currentPlayer.isHost,
-      roleAcknowledged: currentPlayer.roleAcknowledged
-    } : null,
-    totalPlayers: gameData.players.length,
-    acknowledgedCount: gameData.players.filter((p: any) => p.roleAcknowledged).length
-  });
 
   return (
     <div className="min-h-screen bg-background">
