@@ -68,7 +68,7 @@ export function registerGameRoutes(app: Express) {
         name,
         gameId: gameRoom.id,
         role: null,
-        isAlive: true
+        isAlive: true,
       });
 
       res.json({ player, gameRoom });

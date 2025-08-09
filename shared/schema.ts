@@ -22,6 +22,7 @@ export const players = pgTable("players", {
   role: text("role"),
   isAlive: boolean("is_alive").default(true),
   isHost: boolean("is_host").default(false),
+  roleAcknowledged: boolean("role_acknowledged").default(false),
   connectionStatus: text("connection_status").default("connected"), // connected, disconnected, reconnecting
   joinedAt: timestamp("joined_at").defaultNow(),
 });

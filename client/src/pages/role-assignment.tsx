@@ -6,6 +6,7 @@ import { Shield, VenetianMask, UserCheck, Heart, Dice6, Moon, Crosshair, User } 
 import { ROLES } from "@shared/schema";
 import GameHeader from "@/components/ui/game-header";
 import { useGameData, usePlayerRole } from "@/hooks/use-game-data";
+import { useGameMutations } from "@/hooks/use-game-mutations";
 import { FullPageLoader } from "@/components/ui/loading-spinner";
 import { FullPageError } from "@/components/ui/error-display";
 
@@ -47,6 +48,7 @@ export default function RoleAssignment() {
   const [, setLocation] = useLocation();
   
   const playerId = localStorage.getItem("playerId");
+  const { acknowledgeRole } = useGameMutations();
 
   const { data: gameData, isLoading: gameLoading, error: gameError } = useGameData(code);
   const { data: roleData, isLoading: roleLoading, error: roleError } = usePlayerRole(code, playerId);
@@ -57,7 +59,12 @@ export default function RoleAssignment() {
     }
   }, [gameData, code, setLocation]);
 
-  const handleContinue = () => {
+  const handleAcknowledgeRole = () => {
+    if (!playerId || !code) return;
+    acknowledgeRole.mutate({ code, playerId });
+  };
+
+  const handleStartGame = () => {
     setLocation(`/night/${code}`);
   };
 
@@ -77,6 +84,14 @@ export default function RoleAssignment() {
   const RoleIcon = roleIcons[role as keyof typeof roleIcons] || User;
   const roleColor = roleColors[role as keyof typeof roleColors] || "bg-gray-600";
   const description = roleDescriptions[role as keyof typeof roleDescriptions] || "No description available.";
+
+  // Get current player and check acknowledgment status
+  const currentPlayer = gameData.players.find(p => p.playerId === playerId);
+  const hasAcknowledged = currentPlayer?.roleAcknowledged || false;
+  const isHost = currentPlayer?.isHost || false;
+  
+  // Check if all players have acknowledged their roles
+  const allPlayersAcknowledged = gameData.players.every(p => p.roleAcknowledged);
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,13 +132,39 @@ export default function RoleAssignment() {
           </CardContent>
         </Card>
 
-        {/* Continue Button */}
-        <Button
-          onClick={handleContinue}
-          className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
-        >
-          Continue to Game
-        </Button>
+        {/* Action Buttons */}
+        {!hasAcknowledged ? (
+          <Button
+            onClick={handleAcknowledgeRole}
+            disabled={acknowledgeRole.isPending}
+            className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
+            data-testid="button-acknowledge-role"
+          >
+            {acknowledgeRole.isPending ? "Acknowledging..." : "Acknowledge Role"}
+          </Button>
+        ) : isHost ? (
+          <Button
+            onClick={handleStartGame}
+            disabled={!allPlayersAcknowledged}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-4 text-lg"
+            data-testid="button-start-game"
+          >
+            {allPlayersAcknowledged ? "Start Game" : `Waiting for players to acknowledge roles (${gameData.players.filter(p => p.roleAcknowledged).length}/${gameData.players.length})`}
+          </Button>
+        ) : (
+          <div className="w-full text-center">
+            <div className="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg p-4 mb-4">
+              <p className="text-green-800 dark:text-green-200 font-medium">
+                ✓ Role Acknowledged
+              </p>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Waiting for all players to acknowledge their roles...
+              <br />
+              ({gameData.players.filter(p => p.roleAcknowledged).length}/{gameData.players.length} acknowledged)
+            </p>
+          </div>
+        )}
 
         {/* Warning */}
         <p className="text-xs text-gray-400 mt-4 flex items-center justify-center">

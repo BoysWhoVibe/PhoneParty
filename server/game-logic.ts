@@ -34,16 +34,13 @@ export function assignRoles(playerCount: number): string[] {
     roles.push(ROLES.GODFATHER);
   }
   
-  if (playerCount >= 8) {
-    roles.push(ROLES.JOKER);
-  }
-  
   if (playerCount >= 9) {
-    roles.push(ROLES.PROSTITUTE);
+    roles.push(ROLES.JOKER);
+    roles.push(ROLES.VIGILANTE);
   }
   
   if (playerCount >= 10) {
-    roles.push(ROLES.VIGILANTE);
+    roles.push(ROLES.PROSTITUTE);
   }
   
   // Fill remaining slots with Citizens

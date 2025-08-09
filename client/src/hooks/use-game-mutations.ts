@@ -174,11 +174,36 @@ export function useGameMutations() {
     },
   });
 
+  const acknowledgeRoleMutation = useMutation({
+    mutationFn: async ({ code, playerId }: { code: string; playerId: string }) => {
+      const response = await apiRequest("POST", `/api/games/${code}/acknowledge-role`, {
+        playerId,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate game data to refresh state
+      queryClient.invalidateQueries({ queryKey: ["/api/games"] });
+      toast({
+        title: "Role Acknowledged",
+        description: "You have acknowledged your role",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to acknowledge role",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     createGame: createGameMutation,
     joinGame: joinGameMutation,
     startGame: startGameMutation,
     addTestPlayers: addTestPlayersMutation,
     setTownName: setTownNameMutation,
+    acknowledgeRole: acknowledgeRoleMutation,
   };
 }

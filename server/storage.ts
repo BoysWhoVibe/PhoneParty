@@ -30,6 +30,7 @@ export interface IStorage {
   getPlayerByGameAndPlayerId(gameId: number, playerId: string): Promise<Player | undefined>;
   getPlayersByGame(gameId: number): Promise<Player[]>;
   updatePlayer(id: number, updates: Partial<Player>): Promise<Player | undefined>;
+  acknowledgeRole(gameId: number, playerId: string): Promise<Player | undefined>;
   removePlayer(id: number): Promise<boolean>;
   
   // Town name operations
@@ -127,6 +128,7 @@ export class MemStorage implements IStorage {
       gameId: player.gameId || null,
       isAlive: player.isAlive || true,
       isHost: player.isHost || false,
+      roleAcknowledged: player.roleAcknowledged || false,
       connectionStatus: player.connectionStatus || "connected",
       id,
       joinedAt: new Date(),
@@ -155,6 +157,17 @@ export class MemStorage implements IStorage {
     
     const updated = { ...existing, ...updates };
     this.players.set(id, updated);
+    return updated;
+  }
+
+  async acknowledgeRole(gameId: number, playerId: string): Promise<Player | undefined> {
+    const player = Array.from(this.players.values()).find(
+      p => p.gameId === gameId && p.playerId === playerId
+    );
+    if (!player) return undefined;
+    
+    const updated = { ...player, roleAcknowledged: true };
+    this.players.set(player.id, updated);
     return updated;
   }
 

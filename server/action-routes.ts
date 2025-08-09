@@ -4,6 +4,28 @@ import { insertGameActionSchema, ROLES } from "@shared/schema";
 import { checkWinConditions } from "./game-logic";
 
 export function registerActionRoutes(app: Express) {
+  // Acknowledge role assignment
+  app.post("/api/games/:code/acknowledge-role", async (req, res) => {
+    try {
+      const { code } = req.params;
+      const { playerId } = req.body;
+      
+      const gameRoom = await storage.getGameRoomByCode(code);
+      if (!gameRoom) {
+        return res.status(404).json({ message: "Game room not found" });
+      }
+
+      const player = await storage.acknowledgeRole(gameRoom.id, playerId);
+      if (!player) {
+        return res.status(404).json({ message: "Player not found" });
+      }
+
+      res.json({ success: true, player });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to acknowledge role" });
+    }
+  });
+
   // Submit a night action
   app.post("/api/games/:code/night-action", async (req, res) => {
     try {
@@ -18,7 +40,7 @@ export function registerActionRoutes(app: Express) {
       const gameAction = await storage.addGameAction({
         playerId,
         gameId: gameRoom.id!,
-        action,
+        actionType: action,
         targetId,
         phase: gameRoom.phase,
         day: gameRoom.currentDay || 1
