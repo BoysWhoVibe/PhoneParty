@@ -76,20 +76,24 @@ export class MemStorage implements IStorage {
 
   async createGameRoom(room: InsertGameRoom): Promise<GameRoom> {
     const id = this.currentGameRoomId++;
+    
+    // Create default game state if none provided
+    const defaultGameState: GameState = {
+      roles: {},
+      nightActions: {},
+      dayVotes: {},
+      phaseStartTime: Date.now(),
+      phaseDuration: 0
+    };
+
     const gameRoom: GameRoom = {
       code: room.code,
       hostId: room.hostId,
       phase: room.phase || "lobby",
       townName: room.townName || null,
-      townNamingMode: room.townNamingMode || "host",
+      townNamingMode: room.townNamingMode || "host", 
       currentDay: room.currentDay || 0,
-      gameState: room.gameState || {
-        roles: {},
-        nightActions: {},
-        dayVotes: {},
-        phaseStartTime: Date.now(),
-        phaseDuration: 0
-      },
+      gameState: room.gameState as GameState || defaultGameState,
       id,
       createdAt: new Date(),
     };
