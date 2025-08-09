@@ -44,7 +44,7 @@ export function registerGameRoutes(app: Express) {
   app.post("/api/games/:code/join", async (req, res) => {
     try {
       const { code } = req.params;
-      const { name } = req.body;
+      const { name, hostPlayerId } = req.body;
       
       if (!name || name.length > 15) {
         return res.status(400).json({ message: "Name must be 1-15 characters" });
@@ -62,13 +62,17 @@ export function registerGameRoutes(app: Express) {
         return res.status(400).json({ message: "Name already taken" });
       }
 
-      const playerId = nanoid();
+      // Use the provided hostPlayerId if this is the host, otherwise generate new one
+      const isHost = hostPlayerId && hostPlayerId === gameRoom.hostId;
+      const playerId = isHost ? hostPlayerId : nanoid();
+      
       const player = await storage.addPlayer({
         playerId,
         name,
         gameId: gameRoom.id,
         role: null,
         isAlive: true,
+        isHost: isHost,
       });
 
       res.json({ player, gameRoom });

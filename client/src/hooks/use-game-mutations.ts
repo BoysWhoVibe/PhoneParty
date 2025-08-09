@@ -20,6 +20,7 @@ export function useGameMutations() {
         `/api/games/${gameData.gameRoom.code}/join`,
         {
           name,
+          hostPlayerId: gameData.playerId, // Pass the host player ID
         },
       );
       const joinData = await joinResponse.json();
@@ -27,7 +28,8 @@ export function useGameMutations() {
       return { gameData, joinData };
     },
     onSuccess: ({ gameData, joinData }) => {
-      localStorage.setItem("playerId", joinData.player.playerId);
+      // Store the original host player ID, not the new one from joining
+      localStorage.setItem("playerId", gameData.playerId);
       setLocation(`/lobby/${gameData.gameRoom.code}`);
     },
     onError: () => {
