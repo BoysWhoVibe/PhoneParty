@@ -150,7 +150,7 @@ export default function RoleAssignment() {
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-4 text-lg"
             data-testid="button-start-game"
           >
-            {startGameplay.isPending ? "Starting Game..." : allPlayersAcknowledged ? "Start Game" : `Waiting for players to acknowledge roles (${gameData.players.filter((p: any) => p.roleAcknowledged).length}/${gameData.players.length})`}
+            {startGameplay.isPending ? "Starting Game..." : allPlayersAcknowledged ? "Start Game" : `Waiting for role acknowledgements (${gameData.players.filter((p: any) => p.roleAcknowledged).length}/${gameData.players.length})`}
           </Button>
         ) : (
           <div className="w-full text-center">
@@ -160,9 +160,15 @@ export default function RoleAssignment() {
               </p>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Waiting for all players to acknowledge their roles...
-              <br />
-              ({gameData.players.filter((p: any) => p.roleAcknowledged).length}/{gameData.players.length} acknowledged)
+              {allPlayersAcknowledged ? (
+                "Waiting for host to start the game..."
+              ) : (
+                <>
+                  Waiting for all players to acknowledge their roles...
+                  <br />
+                  ({gameData.players.filter((p: any) => p.roleAcknowledged).length}/{gameData.players.length} acknowledged)
+                </>
+              )}
             </p>
           </div>
         )}

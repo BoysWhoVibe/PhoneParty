@@ -13,6 +13,8 @@ Keep everything mobile-friendly.
 Maintain simple, everyday language in UI.
 Focus on reliable functionality over flashy features.
 Role assignment system needs flexibility: custom setups by player count + host-selectable role distributions.
+Host identification: The "host" should be considered the player who created the game room. Once the game starts, the host functions no differently than other players, but the host needs to make decisions before the game starts.
+Role acknowledgment messaging: When all players have acknowledged their role, non-host players should see "waiting for host to start the game" message.
 
 ## System Architecture
 

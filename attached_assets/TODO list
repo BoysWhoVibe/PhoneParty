@@ -42,13 +42,17 @@
    - Display "waiting for host to start game" message for non-host players
    - Clear visual indication when waiting for host action
 
+6. Role acknowledgment waiting message enhancement
+   - When all players have acknowledged their role, non-host players should see "waiting for host to start the game"
+   - Clear indication that all acknowledgments are complete and waiting for host action
+
 ### Polish & Enhancement Features (Lower Priority)
-6. Audio cues and sound effects
+7. Audio cues and sound effects
    - "Town, go to sleep" voice lines
    - State transition sounds
    - Text-to-speech integration
 
-7. Animations and visual polish
+8. Animations and visual polish
    - Mario Party-style tie-breaker wheel
    - Smooth transitions between phases
    - Enhanced mobile UI interactions
