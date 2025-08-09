@@ -51,6 +51,16 @@ Role acknowledgment messaging: When all players have acknowledged their role, no
 - **Game Phase Flow**: Structured progression through town naming, role assignment, night/day cycles, discussion, voting, and win checks.
 - **Data Persistence**: Client actions via API update database, triggering client state updates on next polling cycle.
 
+## Testing Infrastructure
+
+### Automated Testing System
+- **API Integration Tests**: Comprehensive curl-based tests validating complete game flow without browser dependencies
+- **Browser End-to-End Tests**: Playwright-based tests for UI interactions (when environment supports)
+- **Test Coverage**: Game creation, player management, role assignment, acknowledgments, error handling
+- **Test Files**: `tests/simple-api-test.sh`, `tests/manual-api-test.sh`, `tests/game-flow.test.ts`
+- **Test Runner**: `run-tests.js` with intelligent environment detection and fallback strategies
+- **Benefits**: Eliminates manual multi-tab testing, provides fast feedback, ensures regression prevention
+
 ## External Dependencies
 
 ### Core Framework Dependencies

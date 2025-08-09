@@ -142,6 +142,7 @@ export default function Home() {
                   value={hostName}
                   onChange={handleHostNameChange}
                   onKeyDown={handleHostNameKeyDown}
+                  data-testid="input-host-name"
                   className={`w-full bg-gray-800 border-gray-600 text-center focus:border-primary ${
                     hostNameError ? "border-red-500 focus:border-red-500" : ""
                   }`}
@@ -155,6 +156,7 @@ export default function Home() {
               <Button
                 onClick={handleCreateGame}
                 disabled={createGame.isPending || !hostName.trim()}
+                data-testid="button-create-game"
                 className="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3"
               >
                 {createGame.isPending ? "Creating..." : "Create Game Room"}
@@ -180,6 +182,7 @@ export default function Home() {
                 value={roomCode}
                 onChange={handleRoomCodeChange}
                 onKeyDown={handleRoomCodeKeyDown}
+                data-testid="input-room-code"
                 className="text-center text-2xl font-mono tracking-widest uppercase bg-gray-800 border-gray-600 focus:border-secondary"
               />
               <div>
@@ -189,6 +192,7 @@ export default function Home() {
                   value={playerName}
                   onChange={handlePlayerNameChange}
                   onKeyDown={handlePlayerNameKeyDown}
+                  data-testid="input-player-name"
                   className={`w-full bg-gray-800 border-gray-600 text-center focus:border-secondary ${
                     nameError ? "border-red-500 focus:border-red-500" : ""
                   }`}
@@ -206,6 +210,7 @@ export default function Home() {
                   !playerName.trim() ||
                   roomCode.length !== 4
                 }
+                data-testid="button-join-game"
                 className="w-full bg-secondary hover:bg-green-700 text-white font-medium py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {joinGame.isPending ? "Joining..." : "Join Game"}
