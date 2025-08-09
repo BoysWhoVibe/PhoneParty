@@ -371,7 +371,6 @@ export default function Lobby() {
             <Button
               onClick={handleStartGame}
               disabled={startGame.isPending || !gameData?.players || gameData.players.length < 1}
-              data-testid="button-start-game"
               className="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 text-lg"
             >
               <Play className="w-5 h-5 mr-2" />
