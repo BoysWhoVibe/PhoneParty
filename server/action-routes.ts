@@ -26,6 +26,49 @@ export function registerActionRoutes(app: Express) {
     }
   });
 
+  // Start gameplay after all players have acknowledged roles
+  app.post("/api/games/:code/start-gameplay", async (req, res) => {
+    try {
+      const { code } = req.params;
+      const { hostPlayerId } = req.body;
+      
+      const gameRoom = await storage.getGameRoomByCode(code);
+      if (!gameRoom) {
+        return res.status(404).json({ message: "Game room not found" });
+      }
+
+      const players = await storage.getPlayersByGame(gameRoom.id);
+      
+      // Verify the request is from the host
+      const host = players.find(p => p.playerId === hostPlayerId && p.isHost);
+      if (!host) {
+        return res.status(403).json({ message: "Only the host can start the game" });
+      }
+
+      // Check if all players have acknowledged their roles
+      const allAcknowledged = players.every(p => p.roleAcknowledged);
+      if (!allAcknowledged) {
+        return res.status(400).json({ message: "All players must acknowledge their roles first" });
+      }
+
+      // Update game state to start night phase
+      const updatedGameState = {
+        ...gameRoom.gameState!,
+        phaseStartTime: Date.now(),
+        phaseDuration: 300000 // 5 minutes for night phase
+      };
+
+      await storage.updateGameRoom(gameRoom.id, {
+        phase: "night",
+        gameState: updatedGameState
+      });
+
+      res.json({ success: true, message: "Game started successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to start gameplay" });
+    }
+  });
+
   // Submit a night action
   app.post("/api/games/:code/night-action", async (req, res) => {
     try {

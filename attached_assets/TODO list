@@ -16,11 +16,16 @@
    - Automatic phase transitions ✅
    - Complete backend infrastructure ✅
 
-2. Role assignment system enhancements
+✅ **COMPLETED: Role assignment system acknowledgment (August 9, 2025)**
+   - Role acknowledgment requirement ✅
+   - Host control over game start after all acknowledge ✅
+   - Progress tracking and real-time updates ✅
+   - Smart button states and waiting indicators ✅
+
+2. Role assignment system further enhancements  
    - Custom setup options for different player counts
    - Host-selectable role breakdowns and quantities
    - Preset configurations alongside current auto-assignment
-   - Role reveal to individual players
 
 3. Night/Day cycle mechanics
    - Night phase: role-specific actions
@@ -84,6 +89,18 @@
 - Smart edge case handling (no suggestions, ties, etc.)
 - Fixed TypeScript compatibility issues
 - Full end-to-end voting workflow implemented
+
+✅ **Role Acknowledgment System Implementation (August 9, 2025)**
+- Added roleAcknowledged field to player schema and storage system
+- Created acknowledge-role API endpoint with proper validation
+- Implemented role acknowledgment mutation hook
+- Modified role assignment page with smart button logic:
+  - "Acknowledge Role" button for all players initially
+  - Progress tracking showing acknowledgment count (e.g., "2/4 acknowledged")
+  - Host sees "Start Game" button only when all players acknowledged
+  - Non-host players see confirmation message after acknowledging
+- Added start-gameplay API endpoint for proper game start flow
+- Complete end-to-end role acknowledgment workflow
 
 ## User Preferences & Notes
 - Keep everything mobile-friendly

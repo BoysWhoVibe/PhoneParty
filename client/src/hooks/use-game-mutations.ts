@@ -198,6 +198,30 @@ export function useGameMutations() {
     },
   });
 
+  const startGameplayMutation = useMutation({
+    mutationFn: async ({ code, hostPlayerId }: { code: string; hostPlayerId: string }) => {
+      const response = await apiRequest("POST", `/api/games/${code}/start-gameplay`, {
+        hostPlayerId,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate game data to refresh state
+      queryClient.invalidateQueries({ queryKey: ["/api/games"] });
+      toast({
+        title: "Game Started",
+        description: "The game has begun! Good luck!",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to start the game",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     createGame: createGameMutation,
     joinGame: joinGameMutation,
@@ -205,5 +229,6 @@ export function useGameMutations() {
     addTestPlayers: addTestPlayersMutation,
     setTownName: setTownNameMutation,
     acknowledgeRole: acknowledgeRoleMutation,
+    startGameplay: startGameplayMutation,
   };
 }

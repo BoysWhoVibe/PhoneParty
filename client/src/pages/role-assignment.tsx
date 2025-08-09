@@ -48,7 +48,7 @@ export default function RoleAssignment() {
   const [, setLocation] = useLocation();
   
   const playerId = localStorage.getItem("playerId");
-  const { acknowledgeRole } = useGameMutations();
+  const { acknowledgeRole, startGameplay } = useGameMutations();
 
   const { data: gameData, isLoading: gameLoading, error: gameError } = useGameData(code);
   const { data: roleData, isLoading: roleLoading, error: roleError } = usePlayerRole(code, playerId);
@@ -65,7 +65,8 @@ export default function RoleAssignment() {
   };
 
   const handleStartGame = () => {
-    setLocation(`/night/${code}`);
+    if (!playerId || !code) return;
+    startGameplay.mutate({ code, hostPlayerId: playerId });
   };
 
   if (gameLoading || roleLoading) {
@@ -86,12 +87,12 @@ export default function RoleAssignment() {
   const description = roleDescriptions[role as keyof typeof roleDescriptions] || "No description available.";
 
   // Get current player and check acknowledgment status
-  const currentPlayer = gameData.players.find(p => p.playerId === playerId);
+  const currentPlayer = gameData.players.find((p: any) => p.playerId === playerId);
   const hasAcknowledged = currentPlayer?.roleAcknowledged || false;
   const isHost = currentPlayer?.isHost || false;
   
   // Check if all players have acknowledged their roles
-  const allPlayersAcknowledged = gameData.players.every(p => p.roleAcknowledged);
+  const allPlayersAcknowledged = gameData.players.every((p: any) => p.roleAcknowledged);
 
   return (
     <div className="min-h-screen bg-background">
@@ -145,11 +146,11 @@ export default function RoleAssignment() {
         ) : isHost ? (
           <Button
             onClick={handleStartGame}
-            disabled={!allPlayersAcknowledged}
+            disabled={!allPlayersAcknowledged || startGameplay.isPending}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-4 text-lg"
             data-testid="button-start-game"
           >
-            {allPlayersAcknowledged ? "Start Game" : `Waiting for players to acknowledge roles (${gameData.players.filter(p => p.roleAcknowledged).length}/${gameData.players.length})`}
+            {startGameplay.isPending ? "Starting Game..." : allPlayersAcknowledged ? "Start Game" : `Waiting for players to acknowledge roles (${gameData.players.filter((p: any) => p.roleAcknowledged).length}/${gameData.players.length})`}
           </Button>
         ) : (
           <div className="w-full text-center">
@@ -161,7 +162,7 @@ export default function RoleAssignment() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Waiting for all players to acknowledge their roles...
               <br />
-              ({gameData.players.filter(p => p.roleAcknowledged).length}/{gameData.players.length} acknowledged)
+              ({gameData.players.filter((p: any) => p.roleAcknowledged).length}/{gameData.players.length} acknowledged)
             </p>
           </div>
         )}
