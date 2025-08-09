@@ -91,14 +91,8 @@ export default function RoleAssignment() {
   const hasAcknowledged = currentPlayer?.roleAcknowledged || false;
   const isHost = currentPlayer?.isHost || false;
   
-  // Check if there's any host among current players
-  const hostExists = gameData.players.some((p: any) => p.isHost);
-  
   // Check if all players have acknowledged their roles
   const allPlayersAcknowledged = gameData.players.every((p: any) => p.roleAcknowledged);
-  
-  // Allow any acknowledged player to start if no host exists and all acknowledged
-  const canStartGame = isHost || (!hostExists && hasAcknowledged && allPlayersAcknowledged);
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,17 +143,14 @@ export default function RoleAssignment() {
           >
             {acknowledgeRole.isPending ? "Acknowledging..." : "Acknowledge Role"}
           </Button>
-        ) : canStartGame ? (
+        ) : isHost ? (
           <Button
             onClick={handleStartGame}
             disabled={!allPlayersAcknowledged || startGameplay.isPending}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-4 text-lg"
             data-testid="button-start-game"
           >
-            {startGameplay.isPending ? "Starting Game..." : allPlayersAcknowledged ? 
-              (!hostExists ? "Start Game (Host Disconnected)" : "Start Game") : 
-              `Waiting for players to acknowledge roles (${gameData.players.filter((p: any) => p.roleAcknowledged).length}/${gameData.players.length})`
-            }
+            {startGameplay.isPending ? "Starting Game..." : allPlayersAcknowledged ? "Start Game" : `Waiting for players to acknowledge roles (${gameData.players.filter((p: any) => p.roleAcknowledged).length}/${gameData.players.length})`}
           </Button>
         ) : (
           <div className="w-full text-center">
